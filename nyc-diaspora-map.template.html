@@ -1210,8 +1210,8 @@ function renderDetail(hoverId) {
   html += '<div style="margin-top:10px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)">Top birthplaces</div>';
   html += '<div class="cbars">';
   for (const [c, e, m] of rows) {
-    const i = TOP8.indexOf(c);
-    const col = i >= 0 ? `var(--c${i})` : 'var(--other-fill)';
+    const gi = DATA.cgroup[DATA.countries.indexOf(c)];   // world-region color, like everywhere else
+    const col = gi < 8 ? `var(--c${gi})` : 'var(--other-fill)';
     const [sym, lbl] = relInfo(cv(e, m));
     html += `<div class="cbar"><div class="row1"><span class="cname">${c}</span>
       <span class="cval">${fmt(e)} · ${(e / denom * 100).toFixed(1)}% <span class="flag" title="${lbl}">${sym}</span></span></div>
@@ -1228,8 +1228,8 @@ function renderCitywide(el) {
   const max = DATA.totals[cs[0]];
   let html = '<h2>Citywide <span class="h2sub">· top countries of birth</span></h2><div class="cbars">';
   for (const c of cs) {
-    const i = TOP8.indexOf(c);
-    const col = i >= 0 ? `var(--c${i})` : 'var(--other-fill)';
+    const gi = DATA.cgroup[DATA.countries.indexOf(c)];
+    const col = gi < 8 ? `var(--c${gi})` : 'var(--other-fill)';
     html += `<div class="cbar"><div class="row1"><span class="cname">${c}</span>
       <span class="cval">${fmt(DATA.totals[c])}</span></div>
       <div class="track"><div class="fill" style="width:${(DATA.totals[c] / max * 100).toFixed(0)}%;background:${col}"></div></div></div>`;

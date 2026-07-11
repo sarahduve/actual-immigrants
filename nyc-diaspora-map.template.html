@@ -1,0 +1,1322 @@
+<title>NYC Neighborhoods by Country of Birth</title>
+<style>
+:root {
+  --page: #f9f9f7;
+  --surface: #fcfcfb;
+  --ink: #0b0b0b;
+  --ink-2: #52514e;
+  --muted: #898781;
+  --grid: #e1e0d9;
+  --baseline: #c3c2b7;
+  --ring: rgba(11,11,11,0.10);
+  --accent: #2a78d6;
+  --dim-fill: #eeede7;
+  --other-fill: #b5b3ab;
+  --park-fill: #f1f0eb;
+  --road: rgba(255,255,255,0.85);
+  --c0:#2a78d6; --c1:#1baf7a; --c2:#eda100; --c3:#008300;
+  --c4:#4a3aa7; --c5:#e34948; --c6:#e87ba4; --c7:#eb6834;
+  --q1:#cde2fb; --q2:#9ec5f4; --q3:#6da7ec; --q4:#3987e5; --q5:#256abf; --q6:#184f95; --q7:#0d366b;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --ink: #ffffff;
+    --ink-2: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --baseline: #383835;
+    --ring: rgba(255,255,255,0.10);
+    --accent: #3987e5;
+    --dim-fill: #242422;
+    --other-fill: #56554f;
+    --park-fill: #202020;
+    --road: rgba(13,13,13,0.7);
+    --c0:#3987e5; --c1:#1baf7a; --c2:#c98500; --c3:#008300;
+    --c4:#6a5ae0; --c5:#e66767; --c6:#c74576; --c7:#d95926;
+    --q1:#0d366b; --q2:#104281; --q3:#184f95; --q4:#256abf; --q5:#3987e5; --q6:#86b6ef; --q7:#cde2fb;
+  }
+}
+:root[data-theme="dark"] {
+  --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
+  --muted: #898781; --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,0.10);
+  --accent: #3987e5; --dim-fill: #242422; --other-fill: #56554f; --park-fill: #202020;
+  --road: rgba(13,13,13,0.7);
+  --c0:#3987e5; --c1:#1baf7a; --c2:#c98500; --c3:#008300;
+  --c4:#6a5ae0; --c5:#e66767; --c6:#c74576; --c7:#d95926;
+  --q1:#0d366b; --q2:#104281; --q3:#184f95; --q4:#256abf; --q5:#3987e5; --q6:#86b6ef; --q7:#cde2fb;
+}
+:root[data-theme="light"] {
+  --page: #f9f9f7; --surface: #fcfcfb; --ink: #0b0b0b; --ink-2: #52514e;
+  --muted: #898781; --grid: #e1e0d9; --baseline: #c3c2b7; --ring: rgba(11,11,11,0.10);
+  --accent: #2a78d6; --dim-fill: #eeede7; --other-fill: #b5b3ab; --park-fill: #f1f0eb;
+  --road: rgba(255,255,255,0.85);
+  --c0:#2a78d6; --c1:#1baf7a; --c2:#eda100; --c3:#008300;
+  --c4:#4a3aa7; --c5:#e34948; --c6:#e87ba4; --c7:#eb6834;
+  --q1:#cde2fb; --q2:#9ec5f4; --q3:#6da7ec; --q4:#3987e5; --q5:#256abf; --q6:#184f95; --q7:#0d366b;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page);
+  color: var(--ink);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+.wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 48px; }
+header { margin-bottom: 18px; }
+.eyebrow {
+  font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--muted); margin: 0 0 6px;
+}
+h1 { font-size: 26px; font-weight: 700; margin: 0 0 6px; text-wrap: balance; letter-spacing: -0.01em; }
+.sub { color: var(--ink-2); margin: 0; max-width: 68ch; }
+.statrow { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 16px; }
+.stat .v { font-size: 22px; font-weight: 700; }
+.stat .l { font-size: 12px; color: var(--muted); }
+
+.controls {
+  display: flex; gap: 18px; flex-wrap: wrap; align-items: end;
+  padding: 14px 16px; margin: 14px 0;
+  background: var(--surface); border: 1px solid var(--ring); border-radius: 8px;
+}
+.ctl label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
+.seg { display: inline-flex; border: 1px solid var(--baseline); border-radius: 6px; overflow: hidden; }
+.seg button {
+  font: inherit; font-size: 13px; padding: 6px 12px; border: 0; background: transparent;
+  color: var(--ink-2); cursor: pointer;
+}
+.seg button + button { border-left: 1px solid var(--baseline); }
+.seg button.on { background: var(--ink); color: var(--page); font-weight: 600; }
+.seg button:focus-visible, select:focus-visible, input:focus-visible, .chip:focus-visible, .linkbtn:focus-visible {
+  outline: 2px solid var(--accent); outline-offset: 1px;
+}
+select {
+  font: inherit; font-size: 13px; padding: 6px 8px; border: 1px solid var(--baseline);
+  border-radius: 6px; background: var(--surface); color: var(--ink); max-width: 230px;
+}
+.ctl input[type=range] { width: 150px; accent-color: var(--accent); vertical-align: middle; }
+.threshval { font-size: 13px; font-variant-numeric: tabular-nums; color: var(--ink-2); margin-left: 6px; }
+
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 18px; align-items: start; }
+.mapcard { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 10px; position: relative; }
+.mapcard svg { display: block; width: 100%; height: auto; position: relative; }
+#dots { position: absolute; display: none; pointer-events: none; }
+.mapcard.mix #dots { display: block; }
+.mapcard.mix { --road: var(--grid); }
+.mapcard.mix .nta { fill: #000; fill-opacity: 0; stroke: var(--grid); pointer-events: all; }
+.mapcard.mix .nta.park { fill: var(--park-fill); fill-opacity: 1; }
+.mapcard.mix .nta:hover, .mapcard.mix .nta.pinned { stroke: var(--ink); }
+.nta { stroke: var(--surface); stroke-width: 0.7; cursor: pointer; vector-effect: non-scaling-stroke; }
+#roads path { fill: none; stroke: var(--road); vector-effect: non-scaling-stroke; pointer-events: none; }
+.road-p { stroke-width: 1.2; }
+.road-s { stroke-width: 0.9; }
+.road-l { stroke-width: 0.55; display: none; }
+svg.z2 .road-l { display: inline; }
+.roadlabel {
+  fill: var(--muted); display: none; letter-spacing: 0.04em;
+  paint-order: stroke; stroke: var(--surface); stroke-width: 2px;
+}
+svg.z3 .roadlabel { display: inline; }
+.mapcard.mix .roadlabel { stroke: var(--page); }
+.chklabel { font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
+  cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink); }
+.chklabel input { accent-color: var(--accent); }
+#pins { display: none; }
+.mapcard.showpins #pins { display: block; }
+#pins circle { stroke: var(--surface); cursor: pointer; }
+.pin2 { fill: #0ca30c; }
+.pin1 { fill: #fab219; }
+.pin0 { fill: #d03b3b; }
+#siglabels, #domlabels { display: none; pointer-events: none; }
+.mapcard.sig svg.z2 #siglabels { display: block; }
+.mapcard.dom svg.z2 #domlabels { display: block; }
+.siglabel {
+  fill: var(--ink); font-weight: 600; text-anchor: middle;
+  paint-order: stroke; stroke: var(--surface); stroke-width: 2px;
+}
+#tracts { display: none; }
+#tracts path { stroke: none; }
+.mapcard.mosaic #tracts { display: block; }
+.mapcard.mosaic .nta { fill: #000; fill-opacity: 0; stroke: var(--baseline); stroke-width: 0.8; pointer-events: none; }
+.mapcard.mosaic .nta.park { fill: var(--park-fill); fill-opacity: 1; }
+.mapcard.mosaic { --road: var(--grid); }
+.road-x { stroke-width: 0.4; display: none; }
+svg.z3 .road-x { display: inline; }
+.zoomctl { position: absolute; top: 18px; left: 18px; display: flex; flex-direction: column; gap: 5px; z-index: 3; }
+.zoomctl button {
+  width: 30px; height: 30px; font-size: 16px; line-height: 1; font-weight: 600;
+  background: var(--surface); color: var(--ink); border: 1px solid var(--baseline);
+  border-radius: 6px; cursor: pointer; padding: 0;
+}
+.zoomctl button:hover { background: var(--ring); }
+.zoomctl button:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.zoomctl button:disabled { opacity: 0.35; cursor: default; }
+.maphint {
+  position: absolute; bottom: 14px; left: 18px; z-index: 3;
+  font-size: 11px; color: var(--muted); pointer-events: none;
+}
+.mapcard svg.panning { cursor: grabbing; }
+.unpin {
+  font: inherit; font-size: 11px; border: 1px solid var(--baseline); background: var(--surface);
+  color: var(--ink-2); border-radius: 5px; padding: 1px 7px; cursor: pointer; margin-left: 6px;
+}
+.unpin:hover { background: var(--ring); }
+@media (prefers-reduced-motion: no-preference) { .nta { transition: fill-opacity 120ms; } }
+.nta.park { fill: var(--park-fill); cursor: default; pointer-events: none; }
+.nta.dim { fill: var(--dim-fill); }
+.nta.other { fill: var(--other-fill); }
+.nta.c0 { fill: var(--c0); } .nta.c1 { fill: var(--c1); } .nta.c2 { fill: var(--c2); } .nta.c3 { fill: var(--c3); }
+.nta.c4 { fill: var(--c4); } .nta.c5 { fill: var(--c5); } .nta.c6 { fill: var(--c6); } .nta.c7 { fill: var(--c7); }
+.nta.q0 { fill: var(--dim-fill); }
+.nta.q1 { fill: var(--q1); } .nta.q2 { fill: var(--q2); } .nta.q3 { fill: var(--q3); } .nta.q4 { fill: var(--q4); }
+.nta.q5 { fill: var(--q5); } .nta.q6 { fill: var(--q6); } .nta.q7 { fill: var(--q7); }
+svg.focusmode .nta { fill-opacity: 0.16; }
+svg.focusmode .nta.focused { fill-opacity: 1; }
+.nta:hover, .nta.pinned { stroke: var(--ink); stroke-width: 1.3; }
+.borolabel {
+  font-size: 12px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase;
+  fill: var(--muted); pointer-events: none;
+}
+
+.rail { display: flex; flex-direction: column; gap: 14px; }
+.panel { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 14px 16px; }
+.panel h2 { font-size: 13px; font-weight: 700; margin: 0 0 10px; }
+.panel h2 .h2sub { font-weight: 400; color: var(--muted); font-size: 12px; }
+.legend { display: flex; flex-direction: column; gap: 4px; }
+.chip {
+  display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 3px 6px;
+  border: 0; background: transparent; color: var(--ink); font: inherit; font-size: 13px;
+  border-radius: 5px; cursor: pointer; text-align: left; width: 100%;
+}
+.chip:hover { background: var(--ring); }
+.chip.sel { background: var(--ring); font-weight: 600; }
+.chip .n { margin-left: auto; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12px; }
+.sw { width: 13px; height: 13px; border-radius: 3px; flex: none; border: 1px solid var(--ring); }
+.ramprow { display: flex; align-items: center; gap: 0; margin: 6px 0 2px; }
+.ramprow .rs { height: 12px; flex: 1; }
+.ramplabels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+.detail .dn { font-size: 15px; font-weight: 700; }
+.detail .db { font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+.kv { display: flex; justify-content: space-between; font-size: 13px; padding: 2px 0; }
+.kv .k { color: var(--ink-2); }
+.kv .v { font-variant-numeric: tabular-nums; font-weight: 600; }
+.sigblock {
+  margin-top: 10px; padding: 9px 11px; border-radius: 7px;
+  background: var(--ring); border-left: 3px solid var(--accent);
+}
+.sigblock .sigtitle { font-size: 12px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.sigblock .sigsub { font-size: 11.5px; color: var(--ink-2); margin-bottom: 5px; }
+.cbars { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.cbar .row1 { display: flex; justify-content: space-between; font-size: 12.5px; }
+.cbar .cname { color: var(--ink); }
+.cbar .cval { color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.cbar .track { height: 6px; background: var(--grid); border-radius: 4px; margin-top: 2px; overflow: hidden; }
+.cbar .fill { height: 100%; border-radius: 4px 0 0 4px; background: var(--other-fill); }
+.flag { font-size: 11px; color: var(--muted); }
+.hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+#tooltip {
+  position: fixed; z-index: 10; pointer-events: none; display: none;
+  background: var(--surface); border: 1px solid var(--baseline); border-radius: 7px;
+  padding: 10px 12px; max-width: 290px; font-size: 12.5px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.18);
+}
+#tooltip .tn { font-weight: 700; font-size: 13px; }
+#tooltip .tb { color: var(--muted); font-size: 11.5px; margin-bottom: 5px; }
+#tooltip .tr { display: flex; justify-content: space-between; gap: 14px; }
+#tooltip .tr .tv { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+#tooltip .tr .tv b { color: var(--ink); }
+
+.tablewrap { margin-top: 18px; }
+.linkbtn {
+  font: inherit; font-size: 13px; color: var(--accent); background: none; border: 0;
+  cursor: pointer; padding: 4px 0; text-decoration: underline;
+}
+#tablesec { display: none; }
+#tablesec.open { display: block; }
+.tscroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 760px; }
+th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); cursor: pointer; user-select: none; position: sticky; top: 0; background: var(--surface); }
+th:hover { color: var(--ink); }
+tbody tr:hover { background: var(--ring); }
+footer { margin-top: 22px; font-size: 12.5px; color: var(--muted); max-width: 90ch; }
+footer p { margin: 4px 0; }
+footer a { color: var(--accent); }
+
+@media (max-width: 900px) {
+  .main { grid-template-columns: 1fr; }
+  .rail { flex-direction: column; }
+}
+</style>
+
+<div class="wrap">
+<header>
+  <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods</p>
+  <h1>NYC neighborhoods by country of birth</h1>
+  <p class="sub">Several ways to read the same census data. <b>Largest community</b> colors each
+  neighborhood by its biggest foreign-born group. <b>Signature</b> asks a sharper question —
+  which community is most distinctively <i>here</i>, compared to its share of the city as a
+  whole — and that's the view that surfaces Little Thailand in Elmhurst or the Bukharian
+  corridor in Forest Hills instead of repeating the citywide giants. <b>Mix</b> shows every
+  population as coexisting dots, <b>single origin</b> traces any of 125 birthplaces or 18
+  regions, and <b>immigrant families</b> maps the children of immigrants.</p>
+  <div class="statrow" id="statrow"></div>
+</header>
+
+<div class="controls">
+  <div class="ctl">
+    <label>View</label>
+    <span class="seg" role="group" aria-label="View mode">
+      <button id="mode-dom" class="on">Largest community</button>
+      <button id="mode-sig">Signature</button>
+      <button id="mode-mos" style="display:none">Mosaic</button>
+      <button id="mode-mix">Mix</button>
+      <button id="mode-one">Single origin</button>
+      <button id="mode-fam">Immigrant families</button>
+    </span>
+  </div>
+  <div class="ctl" id="ctl-country" style="display:none">
+    <label for="countrysel">Country of birth</label>
+    <select id="countrysel"></select>
+  </div>
+  <div class="ctl" id="ctl-denom">
+    <label>Share measured against</label>
+    <span class="seg" role="group" aria-label="Denominator">
+      <button id="den-p" class="on">All residents</button>
+      <button id="den-f">Foreign-born only</button>
+    </span>
+  </div>
+  <div class="ctl" id="ctl-thresh">
+    <label for="thresh">Significance threshold</label>
+    <input type="range" id="thresh" min="1" max="30" step="1" value="5">
+    <span class="threshval" id="threshval">≥ 5% of all residents</span>
+  </div>
+  <div class="ctl">
+    <label for="pinchk">Overlay</label>
+    <label class="chklabel"><input type="checkbox" id="pinchk"> NYC's official enclave list</label>
+  </div>
+</div>
+
+<div class="main">
+  <div class="mapcard">
+    <div class="zoomctl">
+      <button id="zin" title="Zoom in" aria-label="Zoom in">+</button>
+      <button id="zout" title="Zoom out" aria-label="Zoom out">−</button>
+      <button id="zreset" title="Reset view" aria-label="Reset view">⌂</button>
+    </div>
+    <div class="maphint" id="maphint">⌘/Ctrl + scroll to zoom · drag to pan · double-click to zoom in</div>
+    <canvas id="dots" aria-hidden="true"></canvas>
+    <svg id="map" role="img" aria-label="Choropleth map of New York City neighborhood tabulation areas"></svg>
+  </div>
+  <div class="rail">
+    <div class="panel">
+      <h2 id="legendtitle">Largest foreign-born community</h2>
+      <div class="legend" id="legend"></div>
+    </div>
+    <div class="panel detail" id="detail"></div>
+  </div>
+</div>
+
+<div class="tablewrap">
+  <button class="linkbtn" id="tabletoggle" aria-expanded="false">Show data table (all 197 residential neighborhoods)</button>
+  <div id="tablesec">
+    <div class="tscroll"><table id="datatable">
+      <thead><tr>
+        <th data-k="n">Neighborhood</th><th data-k="b">Borough</th>
+        <th class="num" data-k="p">Population</th><th class="num" data-k="fbpct">Foreign-born</th>
+        <th data-k="d">Largest community</th><th class="num" data-k="de">Born there</th>
+        <th class="num" data-k="dpp">% of residents</th><th class="num" data-k="dpf">% of foreign-born</th>
+        <th data-k="sig">Signature community</th><th class="num" data-k="siglq">×citywide</th>
+        <th data-k="rel">Estimate quality</th>
+      </tr></thead>
+      <tbody></tbody>
+    </table></div>
+  </div>
+</div>
+
+<footer>
+  <p><b>Source:</b> U.S. Census Bureau, American Community Survey 2019–2023 five-year estimates,
+  table B05006 (place of birth for the foreign-born population) and B01003 (total population),
+  tabulated at census-tract level and aggregated to the Department of City Planning's 2020
+  Neighborhood Tabulation Areas — the same geography behind
+  <a href="https://popfactfinder.planning.nyc.gov/">NYC Population FactFinder</a>.</p>
+  <p><b>Reading the estimates:</b> ACS figures are survey estimates with sampling error. Margins of
+  error were combined across tracts (root sum of squares); estimates flagged
+  “use with caution” have a coefficient of variation of 12–40%, and “unreliable” above 40%.
+  England, Scotland and the rest of the UK are combined; “China” excludes Hong Kong and Taiwan,
+  which are tabulated separately. Parks, airports and cemeteries are left uncolored.</p>
+  <p><b>“Signature” = location quotient:</b> a community's share of this neighborhood divided by its
+  share of the whole city — the same math search engines use to find words that distinguish a
+  document (TF-IDF). 3× means a community is three times as concentrated here as its citywide norm,
+  which is what makes a small group like Uzbekistan-born Bukharians light up Forest Hills while
+  citywide giants only register where they truly cluster. Signature picks require at least 400 people
+  and a usable margin of error.</p>
+  <p><b>Children of immigrants</b> come from ACS table B05009: US-born children under 18 living with at
+  least one foreign-born parent. The census stopped asking adults where their parents were born in
+  1970, so second-generation adults — and any per-country breakdown of children at neighborhood
+  scale — are invisible in this data.</p>
+  <p><b>Enclave pins</b> are the 30 neighborhoods on the Mayor's Office of Immigrant Affairs
+  “NYC Immigrant Enclaves” list, colored by how well the ACS residential data supports each claim
+  (green = strongly, amber = with caveats, red = weak or legacy). Some real communities are
+  invisible to the census by design: there is no “Palestine” or “Tibet” birth code, and Tajikistan
+  is folded into “Other South Central Asia”.</p>
+  <p><b>Streets:</b> Census TIGER 2023 road centerlines — highways and major routes always shown;
+  the named arterial grid appears past ~2× zoom, and (where the full data files are hosted) the
+  complete local street grid past ~3.5×.</p>
+  <p><b>Place of birth, not ancestry:</b> unlike ancestry maps (such as the New York Times' 2026
+  “American Mosaic”, whose blended-color convention the Mosaic view borrows), this map counts only
+  people actually born abroad — the immigrants themselves, not descendants who report a heritage.
+  Ancestry is an identity claim that persists for generations; place of birth is a biographical fact
+  that dies with each generation. Both are real; they answer different questions.</p>
+</footer>
+</div>
+
+<div id="tooltip" role="status"></div>
+
+<script id="mapdata" type="application/json">__DATA__</script>
+<script id="roadsdata" type="application/json">__ROADS__</script>
+<script>
+const DATA = JSON.parse(document.getElementById('mapdata').textContent);
+const TOP8 = ['China','Dominican Republic','Jamaica','Bangladesh','Mexico','Ukraine','Guyana','India'];
+const fmt = n => n.toLocaleString('en-US');
+const NTAS = DATA.ntas;
+
+// ---- decode topojson ----
+const topo = DATA.topo;
+const obj = Object.values(topo.objects)[0];
+const [sx, sy] = topo.transform.scale, [tx, ty] = topo.transform.translate;
+const arcs = topo.arcs.map(arc => {
+  let x = 0, y = 0;
+  return arc.map(([dx, dy]) => { x += dx; y += dy; return [x * sx + tx, y * sy + ty]; });
+});
+function ringCoords(arcIdxs) {
+  const pts = [];
+  for (const i of arcIdxs) {
+    const a = i >= 0 ? arcs[i] : arcs[~i].slice().reverse();
+    for (let k = pts.length ? 1 : 0; k < a.length; k++) pts.push(a[k]);
+  }
+  return pts;
+}
+function polys(geom) {
+  if (geom.type === 'Polygon') return [geom.arcs];
+  if (geom.type === 'MultiPolygon') return geom.arcs;
+  return [];
+}
+
+// ---- projection ----
+let minLon = 1e9, maxLon = -1e9, minLat = 1e9, maxLat = -1e9;
+for (const a of arcs) for (const [lon, lat] of a) {
+  if (lon < minLon) minLon = lon; if (lon > maxLon) maxLon = lon;
+  if (lat < minLat) minLat = lat; if (lat > maxLat) maxLat = lat;
+}
+const kx = Math.cos((minLat + maxLat) / 2 * Math.PI / 180);
+const spanX = (maxLon - minLon) * kx, spanY = maxLat - minLat;
+const W = 820, PAD = 8;
+const S = (W - 2 * PAD) / spanX;
+const H = Math.ceil(spanY * S + 2 * PAD);
+const px = lon => PAD + (lon - minLon) * kx * S;
+const py = lat => PAD + (maxLat - lat) * S;
+
+// ---- build svg ----
+const svg = document.getElementById('map');
+svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+const frag = [];
+const SHAPES = {};   // id -> {rings: [[x,y]...][], bbox: [x0,y0,x1,y1]} in projected coords
+for (const g of obj.geometries) {
+  const id = g.properties.nta;
+  const shape = { rings: [], bbox: [1e9, 1e9, -1e9, -1e9] };
+  const d = polys(g).map(rings => rings.map(r => {
+    const pts = ringCoords(r).map(([lon, lat]) => [px(lon), py(lat)]);
+    shape.rings.push(pts);
+    for (const [x, y] of pts) {
+      const b = shape.bbox;
+      if (x < b[0]) b[0] = x; if (y < b[1]) b[1] = y;
+      if (x > b[2]) b[2] = x; if (y > b[3]) b[3] = y;
+    }
+    return 'M' + pts.map(([x, y]) => x.toFixed(1) + ' ' + y.toFixed(1)).join('L') + 'Z';
+  }).join('')).join('');
+  SHAPES[id] = shape;
+  frag.push(`<path class="nta" id="p-${id}" d="${d}"></path>`);
+}
+const ROADS = JSON.parse(document.getElementById('roadsdata').textContent);
+frag.push('<g id="roads" aria-hidden="true">');
+const labelCarriers = [];
+let rid = 0;
+for (const [k, cls] of [['l', 'road-l'], ['s', 'road-s'], ['p', 'road-p']])
+  for (const [name, line] of ROADS[k]) {
+    const d = 'M' + line.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L');
+    frag.push(`<path class="${cls}" d="${d}"/>`);
+    // long named streets get a label carrier (left-to-right so text reads upright)
+    let span = 0;
+    for (let i = 1; i < line.length; i++) span += Math.hypot(line[i][0] - line[i-1][0], line[i][1] - line[i-1][1]);
+    const minorName = (/\d/.test(name) && /St$/.test(name)) || /(Pl|Ct|Ter|Ln|Walk|Loop)$/.test(name);
+    if (name && span > 0.042 && !/^I- /.test(name) && !minorName) {
+      const pts = line[0][0] <= line[line.length - 1][0] ? line : [...line].reverse();
+      const dd = 'M' + pts.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L');
+      labelCarriers.push(`<path id="rl${rid}" d="${dd}" style="fill:none;stroke:none"/>` +
+        `<text class="roadlabel"><textPath href="#rl${rid}" startOffset="35%">${name}</textPath></text>`);
+      rid++;
+    }
+  }
+frag.push(labelCarriers.join(''));
+frag.push('</g>');
+const BOROS = [['The Bronx', 40.885, -73.765], ['Queens', 40.61, -73.815], ['Brooklyn', 40.563, -74.045],
+  ['Manhattan', 40.81, -74.04], ['Staten Island', 40.535, -74.22]];
+for (const [nm, lat, lon] of BOROS)
+  frag.push(`<text class="borolabel" text-anchor="middle" x="${px(lon).toFixed(0)}" y="${py(lat).toFixed(0)}">${nm}</text>`);
+frag.push('<g id="siglabels"></g><g id="domlabels"></g>');
+
+// MOIA "NYC Immigrant Enclaves" list, checked against ACS 2019-2023 (tier 2 = strongly
+// supported, 1 = supported with caveats, 0 = weak or legacy at that location today)
+const PINS = [
+  [40.7596, -73.8303, 2, 'Chinatown in Flushing', '39,361 China-born nearby · 44% of residents', 'Overwhelmingly supported — the city’s largest Chinese concentration.'],
+  [40.7180, -74.0000, 2, 'Chinatown in Manhattan', '14,590 China-born · 38% of residents', 'Strongly supported.'],
+  [40.6350, -74.0110, 2, 'Chinatown in Sunset Park', '24,957 China-born · 34% of residents', 'Strongly supported — 8th Ave corridor.'],
+  [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · barely above the citywide rate', 'Weak — reads broadly Caribbean; the Guyanese center is Richmond Hill.'],
+  [40.7496, -73.9877, 0, 'Koreatown in Manhattan', 'only 893 Korea-born residents nearby', 'Commercial district, not a residential enclave — Koreans live in Flushing/Bayside.'],
+  [40.7610, -73.8330, 2, 'Koreatown in Queens', '7,501 Korea-born · 10.5× citywide rate', 'Strongly supported (with Murray Hill–Bayside).'],
+  [40.6214, -74.0713, 1, 'Little Africa, Staten Island', '487 Liberia-born · 31× citywide rate', 'Small but hyper-concentrated — Park Hill’s famous Liberian community; noisy estimates.'],
+  [40.8336, -73.9186, 1, 'Little Africa, the Bronx', '5,892 West Africa-born · 6% of residents', 'Supported — Ghana strongest; Gambians/Malians hidden in census rollups.'],
+  [40.8621, -73.9013, 0, 'Little Albania (Fordham)', '106 Albania-born · below citywide rate', 'Legacy label — Albanian NYC is now Bensonhurst, Ridgewood, and the east Bronx.'],
+  [40.7105, -73.7935, 2, 'Little Bangladesh (Jamaica)', '14,481 Bangladesh-born · 12× citywide rate', 'Strongly supported.'],
+  [40.7528, -73.9068, 1, 'Little Bhod-Tibet (Woodside)', '2,357 Nepal-born · 11× citywide rate', 'Real Himalayan hub — but Tibet-born people are coded as “China”, so undercounted by design.'],
+  [40.6509, -73.9493, 2, 'Little Caribbean (Flatbush)', '27,109 Caribbean-born · 24% of residents', 'Strongly supported — Haiti, Jamaica, Trinidad together.'],
+  [40.7480, -73.8945, 2, 'Little Colombia (Jackson Hts)', '9,705 Colombia-born · 8× citywide rate', 'Strongly supported.'],
+  [40.8474, -73.9397, 2, 'Little Dominican Republic', '41,083 DR-born · 27% of residents', 'The single largest enclave count in the city.'],
+  [40.7492, -73.8696, 2, 'Little Ecuador (Corona)', '17,664 Ecuador-born · 11× citywide rate', 'Strongly supported.'],
+  [40.7645, -73.9186, 1, 'Little Egypt (Steinway)', '1,252 Egypt-born · 5× citywide rate', 'Supported but modest residentially; the strip is the commercial hub.'],
+  [40.6857, -73.8258, 2, 'Little Guyana (Richmond Hill)', '9,658 Guyana-born · 12% of residents', 'Strongly supported.'],
+  [40.8983, -73.8544, 1, 'Little Guyana, the Bronx', '4,688 Guyana-born · 2.4× citywide rate', 'Moderate — Wakefield reads more Jamaican than Guyanese.'],
+  [40.6350, -73.9481, 2, 'Little Haiti (Newkirk Ave)', '7,871 Haiti-born · 8× citywide rate', 'Strongly supported.'],
+  [40.7455, -73.8880, 1, 'Little India (Jackson Hts)', '3,279 India-born · 4× citywide rate', 'The 74th St strip is real; residentially now more Bangladeshi/Nepali/Tibetan.'],
+  [40.7442, -73.8975, 1, 'Little Manila (Woodside)', '4,659 Philippines-born · 5× citywide rate', 'Supported.'],
+  [40.6339, -74.1244, 1, 'Little Mexico, Port Richmond', '1,962 Mexico-born · 9% of residents', 'Supported.'],
+  [40.6520, -74.0050, 1, 'Little Mexico, Sunset Park', '4,946 Mexico-born · 10% of residents', 'Supported — west of the Chinese 8th Ave corridor.'],
+  [40.5776, -73.9614, 2, 'Little Odessa (Brighton Beach)', '9,379 ex-USSR-born · 32% of residents', 'Highest concentration on the whole list (Ukraine 21× citywide).'],
+  [40.6290, -74.0260, 1, 'Little Palestine (Bay Ridge)', '9,609 Arab ancestry · 11% of residents', 'NYC’s Arab capital — but the census has no “Palestine” birth code, so Palestinians are structurally undercounted.'],
+  [40.6350, -73.9625, 1, 'Little Pakistan (Coney Island Ave)', '4,023 Pakistan-born · 7× citywide rate', 'Supported.'],
+  [40.7304, -73.9542, 2, 'Little Poland (Greenpoint)', '3,490 Poland-born · 20× citywide rate', 'Strongly supported.'],
+  [40.8030, -73.9520, 1, 'Little Senegal (116th St)', '747 Senegal-born · 12× citywide rate', 'Real but small and shrinking with Harlem gentrification.'],
+  [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · half the citywide rate', 'Cultural landmark, not a residential enclave — Ukrainian NYC is south Brooklyn.'],
+  [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 7× citywide rate', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
+];
+frag.push('<g id="pins">');
+PINS.forEach((p, i) => {
+  frag.push(`<circle class="pin${p[2]}" data-pin="${i}" cx="${px(p[1]).toFixed(1)}" cy="${py(p[0]).toFixed(1)}" r="5"/>`);
+});
+frag.push('</g>');
+svg.innerHTML = frag.join('');
+svg.insertAdjacentHTML('afterbegin', '<g id="tracts"></g>');
+
+// ---- state ----
+// sel encodes the explorer pick: 'c<idx>' = country, 'r<idx>' = region group
+const state = { mode: 'dom', den: 'p', thresh: 5, sel: 'c' + DATA.countries.indexOf('China'), pinned: null, focus: null };
+
+const cv = (e, m) => e > 0 ? (m / 1.645) / e * 100 : 999;
+const relInfo = c => c <= 12 ? ['●', 'reliable'] : c <= 40 ? ['◐', 'use with caution'] : ['○', 'unreliable'];
+let FBCITY = 0;
+for (const v of Object.values(NTAS)) FBCITY += v.f;
+
+// ---- signature communities: for each neighborhood, the group most concentrated here
+// relative to its citywide share (location quotient). LQ >= 3, estimate >= 400, CV <= 40. ----
+const GROUPS = ['Caribbean', 'Latin America', 'East Asia', 'South & Central Asia',
+  'Southeast Asia', 'Middle East & N. Africa', 'Sub-Saharan Africa', 'Europe'];
+const SIG = {};
+for (const [id, v] of Object.entries(NTAS)) {
+  if (v.t !== '0' || !v.f) continue;
+  let best = null;
+  for (const [idx, em] of Object.entries(v.v)) {
+    const c = DATA.countries[+idx];
+    const [e, m] = em;
+    if (e < 400 || cv(e, m) > 40) continue;
+    const cityRate = DATA.totals[c] / FBCITY;
+    const lq = (e / v.f) / cityRate;
+    if (lq >= 3 && (!best || lq > best.lq)) best = { c, ci: +idx, lq, e, m };
+  }
+  if (best) SIG[id] = best;
+}
+const lqFmt = lq => (lq >= 10 ? Math.round(lq) : lq.toFixed(1)) + '×';
+
+// adaptive class breaks for single-country mode (quantiles of nonzero shares)
+let BINS = [0.5, 1, 2, 5, 10, 20];
+function fmtPct(x) { return x >= 10 ? Math.round(x) + '%' : x >= 1 ? x.toFixed(1) + '%' : x.toFixed(2) + '%'; }
+function computeBins() {
+  const shares = [];
+  for (const v of Object.values(NTAS)) {
+    if (v.t !== '0') continue;
+    const s = oneShare(v);
+    if (oneEst(v) > 0 && s > 0) shares.push(s);
+  }
+  shares.sort((a, b) => a - b);
+  if (shares.length < 8) { BINS = [0.5, 1, 2, 5, 10, 20]; return; }
+  const q = p => shares[Math.min(shares.length - 1, Math.floor(p * shares.length))];
+  let b = [0.25, 0.45, 0.62, 0.77, 0.9, 0.97].map(q);
+  // enforce strictly increasing breaks
+  const out = [];
+  for (const x of b) if (!out.length || x > out[out.length - 1] * 1.001) out.push(x);
+  BINS = out.length ? out : [q(0.5)];
+}
+
+function denomOf(v) { return state.den === 'p' ? v.p : v.f; }
+function domShare(v) { const d = denomOf(v); return d > 0 ? v.de / d * 100 : 0; }
+function selEntry(v) {
+  const idx = +state.sel.slice(1);
+  return (state.sel[0] === 'r' ? v.rv : v.v)[idx];
+}
+function selName() {
+  const idx = +state.sel.slice(1);
+  return state.sel[0] === 'r' ? DATA.regions[idx] : DATA.countries[idx];
+}
+function selTotal() {
+  const idx = +state.sel.slice(1);
+  return state.sel[0] === 'r' ? DATA.rtotals[idx] : DATA.totals[DATA.countries[idx]];
+}
+function oneEst(v) { const e = selEntry(v); return e ? e[0] : 0; }
+function oneMoe(v) { const e = selEntry(v); return e ? e[1] : 0; }
+function oneShare(v) { const d = denomOf(v); return d > 0 ? oneEst(v) / d * 100 : 0; }
+function famShare(v) { return v.k && v.k[2] > 0 ? v.k[0] / v.k[2] * 100 : 0; }
+const FAMBINS = [20, 30, 40, 50, 60, 70];
+
+function classify(v, id) {
+  if (v.t !== '0') return 'park';
+  if (state.mode === 'dom') {
+    if (!v.d || domShare(v) < state.thresh) return 'dim';
+    const i = TOP8.indexOf(v.d);
+    return i >= 0 ? 'c' + i : 'other';
+  }
+  if (state.mode === 'sig') {
+    const s = SIG[id];
+    if (!s) return 'dim';
+    const g = DATA.cgroup[s.ci];
+    return g < 8 ? 'c' + g : 'other';
+  }
+  if (state.mode === 'fam') {
+    if (!v.k || v.k[2] < 200) return 'dim';   // too few children to say
+    const s = famShare(v);
+    let b = 1; for (const t of FAMBINS) if (s >= t) b++;
+    return 'q' + Math.min(b, 7);
+  }
+  const s = oneShare(v);
+  if (oneEst(v) <= 0) return 'q0';
+  let b = 1; for (const t of BINS) if (s >= t) b++;
+  return 'q' + Math.min(b, 7);
+}
+
+function paint() {
+  for (const [id, v] of Object.entries(NTAS)) {
+    const el = document.getElementById('p-' + id);
+    if (!el) continue;
+    let cls = 'nta ' + classify(v, id);
+    if (state.pinned === id) cls += ' pinned';
+    if (state.focus !== null && v.t === '0') {
+      const match = (state.mode === 'dom' || state.mode === 'sig') && classify(v, id) === state.focus;
+      if (match) cls += ' focused';
+    }
+    el.setAttribute('class', cls);
+    el.setAttribute('aria-label', ntaAria(id, v));
+  }
+  svg.classList.toggle('focusmode', state.focus !== null);
+  const card = document.querySelector('.mapcard');
+  card.classList.toggle('mix', state.mode === 'mix');
+  card.classList.toggle('sig', state.mode === 'sig');
+  card.classList.toggle('dom', state.mode === 'dom');
+  card.classList.toggle('mosaic', state.mode === 'mos');
+  if (state.mode === 'mix') requestAnimationFrame(drawDots);
+  if (state.mode === 'sig') renderSigLabels();
+  if (state.mode === 'dom') renderDomLabels();
+  if (state.mode === 'mos') ensureTracts();
+  renderLegend();
+  renderDetail();
+  renderTable();
+}
+
+// ---- Mosaic: tract-level blended fills (repo build only — data/ fetched lazily) ----
+let TR = null, tractsLoading = false;
+async function ensureTracts() {
+  if (TR || tractsLoading) return;
+  tractsLoading = true;
+  try {
+    const [tj, td] = await Promise.all([
+      fetch('data/tracts_topo.json').then(r => { if (!r.ok) throw 0; return r.json(); }),
+      fetch('data/tract_pob.json').then(r => { if (!r.ok) throw 0; return r.json(); }),
+    ]);
+    const obj2 = Object.values(tj.objects)[0];
+    const [sx2, sy2] = tj.transform.scale, [tx2, ty2] = tj.transform.translate;
+    const arcs2 = tj.arcs.map(arc => {
+      let x = 0, y = 0;
+      return arc.map(([dx, dy]) => { x += dx; y += dy; return [x * sx2 + tx2, y * sy2 + ty2]; });
+    });
+    const ring2 = idxs => {
+      const pts = [];
+      for (const i of idxs) {
+        const a = i >= 0 ? arcs2[i] : arcs2[~i].slice().reverse();
+        for (let k = pts.length ? 1 : 0; k < a.length; k++) pts.push(a[k]);
+      }
+      return pts;
+    };
+    const polys2 = g => g.type === 'Polygon' ? [g.arcs] : g.type === 'MultiPolygon' ? g.arcs : [];
+    const parts = [];
+    for (const g of obj2.geometries) {
+      const gid = g.properties.g;
+      if (!td.tracts[gid]) continue;
+      const d = polys2(g).map(rings => rings.map(r =>
+        'M' + ring2(r).map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L') + 'Z'
+      ).join('')).join('');
+      parts.push(`<path data-t="${gid}" d="${d}"/>`);
+    }
+    document.getElementById('tracts').innerHTML = parts.join('');
+    TR = td.tracts;
+    paintMosaic();
+  } catch (e) { /* inline (artifact) build has no data/ folder */ }
+  tractsLoading = false;
+}
+function regionRGB() {
+  const cs = getComputedStyle(document.documentElement);
+  return Array.from({ length: 8 }, (_, i) => {
+    const h = cs.getPropertyValue('--c' + i).trim();
+    return [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+  });
+}
+function paintMosaic() {
+  if (!TR) return;
+  const cols = regionRGB();
+  for (const el of document.getElementById('tracts').children) {
+    const t = TR[el.dataset.t];
+    const g8 = t.slice(6);
+    const tot = g8.reduce((a, b) => a + b, 0);
+    if (!t[0] || !tot) { el.style.fill = 'var(--dim-fill)'; continue; }
+    let r = 0, g = 0, b = 0;   // blend in linear-ish space so mixes stay vivid
+    for (let i = 0; i < 8; i++) {
+      const w = g8[i] / tot;
+      r += w * cols[i][0] ** 2; g += w * cols[i][1] ** 2; b += w * cols[i][2] ** 2;
+    }
+    const a = 0.12 + 0.88 * Math.min(1, (t[1] / t[0]) / 0.55);
+    el.style.fill = `rgba(${Math.sqrt(r) | 0},${Math.sqrt(g) | 0},${Math.sqrt(b) | 0},${a.toFixed(2)})`;
+  }
+}
+// offer the Mosaic mode only where the tract data files exist (repo / local server)
+fetch('data/tract_pob.json', { method: 'HEAD' })
+  .then(r => { if (r.ok) document.getElementById('mode-mos').style.display = ''; })
+  .catch(() => {});
+
+// ---- full local street grid, fetched once on deep zoom (repo build only) ----
+let streetsTried = false;
+async function ensureStreets() {
+  if (streetsTried) return;
+  streetsTried = true;
+  try {
+    const segs = await fetch('data/streets_full.json').then(r => { if (!r.ok) throw 0; return r.json(); });
+    const d = segs.map(line => 'M' + line.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L')).join('');
+    document.getElementById('roads').insertAdjacentHTML('afterbegin', `<path class="road-x" d="${d}"/>`);
+  } catch (e) { /* not available inline */ }
+}
+
+let domLabelsBuilt = false;
+function renderDomLabels() {
+  if (domLabelsBuilt) return;
+  domLabelsBuilt = true;
+  const parts = [];
+  for (const [id, v] of Object.entries(NTAS)) {
+    if (v.t !== '0' || !v.d || !SHAPES[id]) continue;
+    const b = SHAPES[id].bbox;
+    const short = v.d.replace('Dominican Republic', 'Dominican Rep.').replace('Trinidad and Tobago', 'Trinidad');
+    parts.push(`<text class="siglabel" x="${((b[0] + b[2]) / 2).toFixed(0)}" y="${((b[1] + b[3]) / 2).toFixed(0)}">${short}</text>`);
+  }
+  document.getElementById('domlabels').innerHTML = parts.join('');
+  applyView();
+}
+
+let sigLabelsBuilt = false;
+function renderSigLabels() {
+  if (sigLabelsBuilt) return;
+  sigLabelsBuilt = true;
+  const g = document.getElementById('siglabels');
+  const parts = [];
+  for (const [id, s] of Object.entries(SIG)) {
+    const b = SHAPES[id] && SHAPES[id].bbox;
+    if (!b) continue;
+    const short = s.c.replace('Dominican Republic', 'Dominican Rep.').replace('Trinidad and Tobago', 'Trinidad');
+    parts.push(`<text class="siglabel" x="${((b[0] + b[2]) / 2).toFixed(0)}" y="${((b[1] + b[3]) / 2).toFixed(0)}">${short}</text>`);
+  }
+  g.innerHTML = parts.join('');
+  applyView();   // size the new labels for the current zoom
+}
+
+// ---- dot-density (mix mode) ----
+const DOT_PER = 250;
+let DOTS = null;
+function inShape(shape, x, y) {
+  let inside = false;
+  for (const ring of shape.rings) {
+    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+      const [xi, yi] = ring[i], [xj, yj] = ring[j];
+      if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+    }
+  }
+  return inside;
+}
+function samplePoint(shape) {
+  const [x0, y0, x1, y1] = shape.bbox;
+  for (let t = 0; t < 60; t++) {
+    const x = x0 + Math.random() * (x1 - x0), y = y0 + Math.random() * (y1 - y0);
+    if (inShape(shape, x, y)) return [x, y];
+  }
+  return null;
+}
+// map region entries onto the 8 world groups (customs and Oceania stay out — remainder)
+const REG2GROUP = DATA.regions.map(n => {
+  if (n.startsWith('Caribbean')) return 0;
+  if (n.startsWith('Central America') || n.startsWith('South America')) return 1;
+  if (n.startsWith('Eastern Asia')) return 2;
+  if (n.startsWith('South Central')) return 3;
+  if (n.startsWith('South Eastern')) return 4;
+  if (n.startsWith('Western Asia') || n.startsWith('Northern Africa')) return 5;
+  if (/^(Western|Eastern|Middle) Africa/.test(n)) return 6;
+  if (/Europe/.test(n)) return 7;
+  return -1;
+});
+function groups8(v) {
+  const g = [0, 0, 0, 0, 0, 0, 0, 0];
+  for (const [i, em] of Object.entries(v.rv)) {
+    const k = REG2GROUP[+i];
+    if (k >= 0) g[k] += em[0];
+  }
+  return g;
+}
+function genDots() {
+  if (DOTS) return;
+  DOTS = [];
+  const add = (shape, count, ci) => {
+    let n = Math.floor(count / DOT_PER);
+    if (Math.random() < (count % DOT_PER) / DOT_PER) n++;
+    for (let i = 0; i < n; i++) {
+      const p = samplePoint(shape);
+      if (p) DOTS.push([p[0], p[1], ci]);
+    }
+  };
+  for (const [id, v] of Object.entries(NTAS)) {
+    if (v.t !== '0' || !SHAPES[id]) continue;
+    const shape = SHAPES[id];
+    const g = groups8(v);
+    let assigned = 0;
+    g.forEach((e, ci) => { add(shape, e, ci); assigned += e; });
+    add(shape, Math.max(0, v.f - assigned), 8);   // Canada, Oceania, at-sea, historical
+  }
+  for (let i = DOTS.length - 1; i > 0; i--) {   // shuffle so overlaps don't favor one country
+    const j = Math.floor(Math.random() * (i + 1));
+    [DOTS[i], DOTS[j]] = [DOTS[j], DOTS[i]];
+  }
+}
+const dotsCanvas = document.getElementById('dots');
+function seriesColors() {
+  const cs = getComputedStyle(document.documentElement);
+  const arr = [];
+  for (let i = 0; i < 8; i++) arr.push(cs.getPropertyValue('--c' + i).trim());
+  arr.push(cs.getPropertyValue('--other-fill').trim());
+  return arr;
+}
+function drawDots() {
+  if (state.mode !== 'mix') return;
+  genDots();
+  const w = svg.clientWidth, h = svg.clientHeight;
+  if (!w) return;
+  dotsCanvas.style.left = svg.offsetLeft + 'px';
+  dotsCanvas.style.top = svg.offsetTop + 'px';
+  dotsCanvas.style.width = w + 'px';
+  dotsCanvas.style.height = h + 'px';
+  const dpr = window.devicePixelRatio || 1;
+  dotsCanvas.width = w * dpr; dotsCanvas.height = h * dpr;
+  const ctx = dotsCanvas.getContext('2d');
+  const zoom = W / view.w;
+  // dots start bigger and grow gently with zoom so hue stays readable
+  const rCss = Math.min(5.5, Math.max(1.8, 2.1 * w / W) * Math.pow(zoom, 0.45));
+  const r = rCss * dpr;
+  const cols = seriesColors();
+  const cs = getComputedStyle(document.documentElement);
+  const ring = cs.getPropertyValue('--surface').trim();
+  // pre-render one sprite per color: fill + thin surface ring (the "gap" that separates touching dots)
+  const R = Math.ceil(r + 1.2 * dpr);
+  const sprites = cols.map(c => {
+    const cv = document.createElement('canvas');
+    cv.width = cv.height = 2 * R;
+    const g = cv.getContext('2d');
+    g.beginPath(); g.arc(R, R, r, 0, 6.2832);
+    g.fillStyle = c; g.fill();
+    g.lineWidth = 0.8 * dpr; g.strokeStyle = ring; g.stroke();
+    return cv;
+  });
+  const k = w * dpr / view.w;
+  for (const [x, y, ci] of DOTS) {
+    const sx = (x - view.x) * k, sy = (y - view.y) * k;
+    if (sx < -R || sy < -R || sx > w * dpr + R || sy > h * dpr + R) continue;
+    ctx.drawImage(sprites[ci], sx - R, sy - R);
+  }
+}
+function themeRefresh() { drawDots(); paintMosaic(); }
+window.addEventListener('resize', drawDots);
+matchMedia('(prefers-color-scheme: dark)').addEventListener('change', themeRefresh);
+new MutationObserver(themeRefresh).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+// ---- zoom & pan ----
+const view = { x: 0, y: 0, w: W, h: H };
+const MAXZOOM = 12;
+function applyView() {
+  svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
+  svg.classList.toggle('z2', view.w < W / 2.2);   // street grid + signature names
+  const z3 = view.w < W / 3.4;                    // street names + full local grid
+  svg.classList.toggle('z3', z3);
+  if (z3) ensureStreets();
+  const k = view.w / W;
+  svg.querySelectorAll('.borolabel').forEach(t => t.setAttribute('font-size', (12 * k).toFixed(2)));
+  svg.querySelectorAll('.roadlabel').forEach(t => t.setAttribute('font-size', (6.5 * k).toFixed(2)));
+  svg.querySelectorAll('.siglabel').forEach(t => t.setAttribute('font-size', (7 * k).toFixed(2)));
+  svg.querySelectorAll('#pins circle').forEach(c => {
+    c.setAttribute('r', (5.5 * k).toFixed(2));
+    c.setAttribute('stroke-width', (1.4 * k).toFixed(2));
+  });
+  document.getElementById('zin').disabled = view.w <= W / MAXZOOM + 0.01;
+  document.getElementById('zout').disabled = view.w >= W - 0.01;
+  if (state.mode === 'mix') drawDots();
+}
+function clampView() {
+  view.x = Math.min(Math.max(view.x, 0), W - view.w);
+  view.y = Math.min(Math.max(view.y, 0), H - view.h);
+}
+function zoomAt(clientX, clientY, factor) {
+  const rect = svg.getBoundingClientRect();
+  const fx = (clientX - rect.left) / rect.width, fy = (clientY - rect.top) / rect.height;
+  const ux = view.x + fx * view.w, uy = view.y + fy * view.h;
+  const nw = Math.min(W, Math.max(W / MAXZOOM, view.w / factor));
+  view.w = nw; view.h = nw * H / W;
+  view.x = ux - fx * view.w; view.y = uy - fy * view.h;
+  clampView(); applyView();
+}
+function zoomCenter(factor) {
+  const rect = svg.getBoundingClientRect();
+  zoomAt(rect.left + rect.width / 2, rect.top + rect.height / 2, factor);
+}
+document.getElementById('zin').addEventListener('click', () => zoomCenter(1.6));
+document.getElementById('zout').addEventListener('click', () => zoomCenter(1 / 1.6));
+document.getElementById('zreset').addEventListener('click', () => {
+  view.x = 0; view.y = 0; view.w = W; view.h = H; applyView();
+});
+svg.addEventListener('wheel', ev => {
+  if (!ev.ctrlKey && !ev.metaKey) return;   // plain scroll keeps scrolling the page
+  ev.preventDefault();
+  zoomAt(ev.clientX, ev.clientY, Math.exp(-ev.deltaY * 0.01));
+}, { passive: false });
+svg.addEventListener('dblclick', ev => { ev.preventDefault(); zoomAt(ev.clientX, ev.clientY, ev.shiftKey ? 1 / 1.8 : 1.8); });
+let pan = null, dragged = false;
+svg.addEventListener('pointerdown', ev => {
+  if (ev.button !== 0) return;
+  pan = { x: ev.clientX, y: ev.clientY }; dragged = false;
+});
+window.addEventListener('pointermove', ev => {
+  if (!pan) return;
+  const dx = ev.clientX - pan.x, dy = ev.clientY - pan.y;
+  if (!dragged && Math.hypot(dx, dy) < 4) return;
+  dragged = true;
+  svg.classList.add('panning');
+  const rect = svg.getBoundingClientRect();
+  view.x -= dx / rect.width * view.w;
+  view.y -= dy / rect.height * view.h;
+  pan = { x: ev.clientX, y: ev.clientY };
+  clampView(); applyView();
+});
+window.addEventListener('pointerup', () => {
+  pan = null; svg.classList.remove('panning');
+  setTimeout(() => { dragged = false; }, 0);   // outlive this gesture's click, not the next one
+});
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'Escape' && state.pinned) { state.pinned = null; paint(); }
+});
+function ntaAria(id, v) {
+  if (v.t !== '0') return v.n + ' (non-residential)';
+  return `${v.n}, ${v.b}: largest foreign-born community ${v.d || 'none'}, ${fmt(v.de)} people`;
+}
+
+// ---- legend ----
+function renderLegend() {
+  const lg = document.getElementById('legend');
+  const title = document.getElementById('legendtitle');
+  if (state.mode === 'dom') {
+    title.innerHTML = 'Largest foreign-born community <span class="h2sub">· click to isolate</span>';
+    const counts = {};
+    for (const [id, v] of Object.entries(NTAS)) {
+      if (v.t !== '0') continue;
+      const c = classify(v, id);
+      counts[c] = (counts[c] || 0) + 1;
+    }
+    let html = '';
+    TOP8.forEach((c, i) => {
+      const k = 'c' + i, n = counts[k] || 0;
+      html += `<button class="chip${state.focus === k ? ' sel' : ''}" data-f="${k}">
+        <span class="sw" style="background:var(--${k})"></span>${c}<span class="n">${n}</span></button>`;
+    });
+    html += `<button class="chip${state.focus === 'other' ? ' sel' : ''}" data-f="other">
+      <span class="sw" style="background:var(--other-fill)"></span>Another country<span class="n">${counts.other || 0}</span></button>`;
+    html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--dim-fill)"></span>
+      <span style="color:var(--ink-2)">No community ≥ threshold</span><span class="n">${counts.dim || 0}</span></div>`;
+    lg.innerHTML = html;
+    lg.querySelectorAll('button.chip').forEach(b => b.addEventListener('click', () => {
+      state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
+    }));
+  } else if (state.mode === 'sig') {
+    title.innerHTML = 'Signature community <span class="h2sub">· colored by world region · click to isolate</span>';
+    const counts = {};
+    for (const [id, v] of Object.entries(NTAS)) {
+      if (v.t !== '0') continue;
+      const c = classify(v, id);
+      counts[c] = (counts[c] || 0) + 1;
+    }
+    let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">The community most
+      concentrated in each neighborhood <i>relative to its citywide share</i> — at least 3× and 400+
+      people. Zoom in for names.</div>`;
+    GROUPS.forEach((gname, i) => {
+      const k = 'c' + i, n = counts[k] || 0;
+      if (!n) return;
+      html += `<button class="chip${state.focus === k ? ' sel' : ''}" data-f="${k}">
+        <span class="sw" style="background:var(--${k})"></span>${gname}<span class="n">${n}</span></button>`;
+    });
+    html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--dim-fill)"></span>
+      <span style="color:var(--ink-2)">No standout community</span><span class="n">${counts.dim || 0}</span></div>`;
+    lg.innerHTML = html;
+    lg.querySelectorAll('button.chip').forEach(b => b.addEventListener('click', () => {
+      state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
+    }));
+  } else if (state.mode === 'fam') {
+    title.textContent = 'Children of immigrants';
+    let ramp = '<div class="ramprow">';
+    for (let i = 1; i <= 7; i++) ramp += `<span class="rs" style="background:var(--q${i})"></span>`;
+    ramp += '</div><div class="ramplabels"><span>&lt;20%</span>' + FAMBINS.map(b => `<span>${b}%</span>`).join('') + '</div>';
+    lg.innerHTML = `<div style="font-size:12.5px;color:var(--ink-2)">share of children (under 18, living
+      with parents) who are US-born with at least one foreign-born parent</div>` + ramp +
+      `<div class="hint">Citywide, 47% of children are second generation. The census only links children
+      to their parents' origin while they live at home — adult children of immigrants can't be counted,
+      and no per-country breakdown exists at neighborhood level.</div>`;
+  } else if (state.mode === 'mix') {
+    title.textContent = 'Every community at once';
+    let html = '';
+    GROUPS.forEach((g, i) => {
+      html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--c${i})"></span>${g}</div>`;
+    });
+    html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--other-fill)"></span>Elsewhere (Canada, Oceania…)</div>`;
+    html += `<div class="hint">One dot ≈ ${fmt(DOT_PER)} foreign-born residents, colored by world region
+      and placed at random within their neighborhood. Mixed stippling means communities share the
+      same blocks; hover for the country-level breakdown.</div>`;
+    lg.innerHTML = html;
+  } else if (state.mode === 'mos') {
+    title.textContent = 'Mosaic · census tracts';
+    let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">Each census tract is
+      painted with the <i>blend</i> of its foreign-born residents' world regions — saturated where one
+      region dominates, mixed hues where communities overlap. Paler tracts have fewer immigrants.</div>`;
+    GROUPS.forEach((g, i) => {
+      html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--c${i})"></span>${g}</div>`;
+    });
+    lg.innerHTML = html;
+  } else {
+    const cname = selName();
+    title.textContent = `Residents born in ${cname}`;
+    const denomLbl = state.den === 'p' ? 'share of all residents' : 'share of foreign-born residents';
+    const n = BINS.length + 1;
+    let ramp = '<div class="ramprow">';
+    for (let i = 1; i <= n; i++) ramp += `<span class="rs" style="background:var(--q${i})"></span>`;
+    ramp += '</div><div class="ramplabels"><span>&gt;0</span>' + BINS.map(b => `<span>${fmtPct(b)}</span>`).join('') + '</div>';
+    lg.innerHTML = `<div style="font-size:12.5px;color:var(--ink-2)">${denomLbl} · shading breaks adapt to this selection's distribution</div>` + ramp +
+      `<div class="hint">${fmt(selTotal())} New Yorkers were born in ${cname}. Neighborhoods with zero estimate are left pale.</div>`;
+  }
+}
+
+// ---- detail panel ----
+function countryRows(v, limit) {
+  const rows = [];
+  for (const [idx, em] of Object.entries(v.v)) rows.push([DATA.countries[+idx], em[0], em[1]]);
+  rows.sort((a, b) => b[1] - a[1]);
+  return rows.slice(0, limit);
+}
+function renderDetail(hoverId) {
+  const el = document.getElementById('detail');
+  const id = hoverId || state.pinned;
+  if (!id) { renderCitywide(el); return; }
+  const v = NTAS[id];
+  const denom = denomOf(v) || 1;
+  const rows = countryRows(v, 6);
+  const maxEst = rows.length ? rows[0][1] : 1;
+  let html = `<div class="dn">${v.n}</div><div class="db">${v.b}${state.pinned === id ?
+    ' · pinned <button class="unpin" id="unpinbtn">✕ unpin</button>' : ''}</div>`;
+  html += `<div class="kv"><span class="k">Population</span><span class="v">${fmt(v.p)}</span></div>`;
+  html += `<div class="kv"><span class="k">Foreign-born</span><span class="v">${fmt(v.f)} (${(v.p ? v.f / v.p * 100 : 0).toFixed(0)}%)</span></div>`;
+  if (v.k && v.k[2] > 0) {
+    html += `<div class="kv"><span class="k">Children of immigrants</span>
+      <span class="v">${fmt(v.k[0])} (${famShare(v).toFixed(0)}% of kids)</span></div>`;
+  }
+  // signature communities: most concentrated here relative to citywide — the enclave signal
+  if (v.f > 0) {
+    const lqs = [];
+    for (const [idx, em] of Object.entries(v.v)) {
+      const c = DATA.countries[+idx];
+      const cityRate = DATA.totals[c] / FBCITY;
+      if (em[0] >= 300 && cityRate > 0 && cv(em[0], em[1]) <= 60) {
+        const lq = (em[0] / v.f) / cityRate;
+        if (lq >= 3) lqs.push([c, em[0], lq]);
+      }
+    }
+    lqs.sort((a, b) => b[2] - a[2]);
+    if (lqs.length) {
+      html += `<div class="sigblock"><div class="sigtitle">Signature communities</div>
+        <div class="sigsub">far more concentrated here than in the city overall</div>`;
+      for (const [c, e, lq] of lqs.slice(0, 4)) {
+        const gi = DATA.cgroup[DATA.countries.indexOf(c)];
+        const col = gi < 8 ? `var(--c${gi})` : 'var(--other-fill)';
+        html += `<div class="kv"><span class="k"><span class="sw" style="background:${col};display:inline-block;vertical-align:-2px;margin-right:6px"></span>${c}</span>
+          <span class="v">${fmt(e)} · ${lqFmt(lq)} the citywide level</span></div>`;
+      }
+      html += '</div>';
+    }
+  }
+  html += '<div style="margin-top:10px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)">Largest groups</div>';
+  html += '<div class="cbars">';
+  for (const [c, e, m] of rows) {
+    const i = TOP8.indexOf(c);
+    const col = i >= 0 ? `var(--c${i})` : 'var(--other-fill)';
+    const [sym, lbl] = relInfo(cv(e, m));
+    html += `<div class="cbar"><div class="row1"><span class="cname">${c}</span>
+      <span class="cval">${fmt(e)} · ${(e / denom * 100).toFixed(1)}% <span class="flag" title="${lbl}">${sym}</span></span></div>
+      <div class="track"><div class="fill" style="width:${(e / maxEst * 100).toFixed(0)}%;background:${col}"></div></div></div>`;
+  }
+  html += '</div>';
+  // diversity: effective number of equal-size communities (inverse Simpson over country shares of FB)
+  if (v.f > 0) {
+    let s2 = 0;
+    for (const em of Object.values(v.v)) { const p = em[0] / v.f; s2 += p * p; }
+    if (s2 > 0) {
+      const eff = 1 / s2;
+      html += `<div class="kv" style="margin-top:8px"><span class="k">Diversity of origins</span>
+        <span class="v">≈ ${eff.toFixed(0)} communities</span></div>
+      <div class="flag">as if the foreign-born population were split evenly among this many countries</div>`;
+    }
+  }
+  html += '<div class="hint">● reliable · ◐ use with caution · ○ unreliable (ACS margin of error)</div>';
+  el.innerHTML = html;
+  const ub = document.getElementById('unpinbtn');
+  if (ub) ub.addEventListener('click', () => { state.pinned = null; paint(); });
+}
+function renderCitywide(el) {
+  const cs = DATA.countries.slice(0, 10);
+  const max = DATA.totals[cs[0]];
+  let html = '<h2>Citywide <span class="h2sub">· top countries of birth</span></h2><div class="cbars">';
+  for (const c of cs) {
+    const i = TOP8.indexOf(c);
+    const col = i >= 0 ? `var(--c${i})` : 'var(--other-fill)';
+    html += `<div class="cbar"><div class="row1"><span class="cname">${c}</span>
+      <span class="cval">${fmt(DATA.totals[c])}</span></div>
+      <div class="track"><div class="fill" style="width:${(DATA.totals[c] / max * 100).toFixed(0)}%;background:${col}"></div></div></div>`;
+  }
+  html += '</div><div class="hint">Hover the map for a neighborhood profile; click to pin it.</div>';
+  el.innerHTML = html;
+}
+
+// ---- tooltip ----
+const tip = document.getElementById('tooltip');
+function showTip(ev, id) {
+  const v = NTAS[id];
+  if (!v || v.t !== '0') { tip.style.display = 'none'; return; }
+  const denom = denomOf(v) || 1;
+  let body = '';
+  if (state.mode === 'one') {
+    const cname = selName();
+    const [sym, lbl] = relInfo(cv(oneEst(v), oneMoe(v)));
+    body = `<div class="tr"><span>Born in ${cname}</span><span class="tv"><b>${fmt(oneEst(v))}</b> · ${oneShare(v).toFixed(1)}%</span></div>
+      <div class="tr"><span>Estimate</span><span class="tv">±${fmt(oneMoe(v))} ${sym} ${lbl}</span></div>`;
+  } else if (state.mode === 'fam') {
+    body = v.k && v.k[2] > 0
+      ? `<div class="tr"><span>Children of immigrants</span><span class="tv"><b>${fmt(v.k[0])}</b> of ${fmt(v.k[2])} kids · ${famShare(v).toFixed(0)}%</span></div>`
+      : '<div class="tr"><span>Too few children to estimate</span></div>';
+  } else {
+    if (state.mode === 'sig' && SIG[id]) {
+      const s = SIG[id];
+      body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${lqFmt(s.lq)}</b> citywide level</span></div>`;
+    }
+    for (const [c, e] of countryRows(v, 4))
+      body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${(e / denom * 100).toFixed(1)}%</span></div>`;
+  }
+  tip.innerHTML = `<div class="tn">${v.n}</div><div class="tb">${v.b} · ${fmt(v.p)} residents · ${(v.p ? v.f / v.p * 100 : 0).toFixed(0)}% foreign-born</div>` + body;
+  tip.style.display = 'block';
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+function placeTip(ev) {
+  tip.style.display = 'block';
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+}
+svg.addEventListener('mousemove', ev => {
+  const tp = ev.target.closest('#tracts path');
+  if (tp && state.mode === 'mos' && TR) {
+    const t = TR[tp.dataset.t];
+    const ntaName = NTAS[t[5]] ? `${NTAS[t[5]].n} · ` : '';
+    const g8 = t.slice(6), tot = g8.reduce((a, b) => a + b, 0);
+    let mixLine = '';
+    if (tot > 0) {
+      const top = g8.map((e, i) => [GROUPS[i], e]).sort((a, b) => b[1] - a[1]).slice(0, 2)
+        .filter(x => x[1] > 0).map(x => `${x[0]} ${(x[1] / tot * 100).toFixed(0)}%`).join(' · ');
+      mixLine = `<div class="tr"><span>Mix</span><span class="tv">${top}</span></div>`;
+    }
+    const domLine = t[2] >= 0 && t[3] > 0
+      ? `<div class="tr"><span>Largest: ${DATA.countries[t[2]]}</span><span class="tv"><b>${fmt(t[3])}</b> ±${fmt(t[4])}</span></div>` : '';
+    tip.innerHTML = `<div class="tn">Census tract</div>
+      <div class="tb">${ntaName}${fmt(t[0])} residents · ${t[0] ? Math.round(t[1] / t[0] * 100) : 0}% foreign-born</div>
+      ${domLine}${mixLine}`;
+    placeTip(ev);
+    if (!state.pinned && NTAS[t[5]]) renderDetail(t[5]);
+    return;
+  }
+  const t = ev.target.closest('.nta');
+  if (t) { const id = t.id.slice(2); showTip(ev, id); if (!state.pinned) renderDetail(id); }
+  else if (!ev.target.closest('#pins circle')) { tip.style.display = 'none'; if (!state.pinned) renderDetail(); }
+});
+svg.addEventListener('mouseleave', () => { tip.style.display = 'none'; if (!state.pinned) renderDetail(); });
+svg.addEventListener('click', ev => {
+  if (dragged) return;   // pan gestures shouldn't pin
+  const tp = ev.target.closest('#tracts path');
+  if (tp && state.mode === 'mos' && TR) {
+    const nta = TR[tp.dataset.t][5];
+    if (NTAS[nta]) { state.pinned = state.pinned === nta ? null : nta; paint(); }
+    return;
+  }
+  const t = ev.target.closest('.nta');
+  if (!t) return;
+  const id = t.id.slice(2);
+  if (NTAS[id].t !== '0') return;
+  state.pinned = state.pinned === id ? null : id;
+  paint();
+});
+
+// ---- table ----
+let sortK = 'p', sortDir = -1;
+function tableRows() {
+  const rows = [];
+  for (const [id, v] of Object.entries(NTAS)) {
+    if (v.t !== '0') continue;
+    const s = SIG[id];
+    rows.push({
+      id, n: v.n, b: v.b, p: v.p, fbpct: v.p ? v.f / v.p * 100 : 0,
+      d: v.d || '—', de: v.de,
+      dpp: v.p ? v.de / v.p * 100 : 0, dpf: v.f ? v.de / v.f * 100 : 0,
+      sig: s ? s.c : '—', siglq: s ? s.lq : 0,
+      rel: cv(v.de, v.dm),
+    });
+  }
+  rows.sort((a, b) => {
+    const x = a[sortK], y = b[sortK];
+    return (typeof x === 'string' ? x.localeCompare(y) : x - y) * sortDir;
+  });
+  return rows;
+}
+function renderTable() {
+  const tb = document.querySelector('#datatable tbody');
+  if (!document.getElementById('tablesec').classList.contains('open')) { tb.innerHTML = ''; return; }
+  tb.innerHTML = tableRows().map(r => {
+    const [sym, lbl] = relInfo(r.rel);
+    return `<tr><td>${r.n}</td><td>${r.b}</td><td class="num">${fmt(r.p)}</td>
+      <td class="num">${r.fbpct.toFixed(0)}%</td><td>${r.d}</td><td class="num">${fmt(r.de)}</td>
+      <td class="num">${r.dpp.toFixed(1)}%</td><td class="num">${r.dpf.toFixed(1)}%</td>
+      <td>${r.sig}</td><td class="num">${r.siglq ? lqFmt(r.siglq) : '—'}</td>
+      <td>${sym} ${lbl}</td></tr>`;
+  }).join('');
+}
+document.querySelectorAll('#datatable th').forEach(th => th.addEventListener('click', () => {
+  const k = th.dataset.k;
+  if (sortK === k) sortDir *= -1; else { sortK = k; sortDir = k === 'n' || k === 'b' || k === 'd' ? 1 : -1; }
+  renderTable();
+}));
+document.getElementById('tabletoggle').addEventListener('click', function () {
+  const sec = document.getElementById('tablesec');
+  sec.classList.toggle('open');
+  const open = sec.classList.contains('open');
+  this.setAttribute('aria-expanded', open);
+  this.textContent = open ? 'Hide data table' : 'Show data table (all 197 residential neighborhoods)';
+  renderTable();
+});
+
+// ---- controls ----
+function setSeg(onBtn, offBtn) { onBtn.classList.add('on'); offBtn.classList.remove('on'); }
+const MODEBTN = {
+  dom: document.getElementById('mode-dom'), sig: document.getElementById('mode-sig'),
+  mos: document.getElementById('mode-mos'), mix: document.getElementById('mode-mix'),
+  one: document.getElementById('mode-one'), fam: document.getElementById('mode-fam'),
+};
+function setMode(mode) {
+  state.mode = mode; state.focus = null;
+  for (const [m, b] of Object.entries(MODEBTN)) b.classList.toggle('on', m === mode);
+  document.getElementById('ctl-country').style.display = mode === 'one' ? '' : 'none';
+  document.getElementById('ctl-thresh').style.display = mode === 'dom' ? '' : 'none';
+  document.getElementById('ctl-denom').style.display = (mode === 'dom' || mode === 'one') ? '' : 'none';
+  if (mode === 'one') computeBins();
+  paint();
+}
+for (const m of Object.keys(MODEBTN)) MODEBTN[m].addEventListener('click', () => setMode(m));
+
+const pinchk = document.getElementById('pinchk');
+pinchk.addEventListener('change', () => {
+  document.querySelector('.mapcard').classList.toggle('showpins', pinchk.checked);
+});
+svg.addEventListener('mousemove', ev => {
+  const pin = ev.target.closest('#pins circle');
+  if (!pin) return;
+  const p = PINS[+pin.dataset.pin];
+  const tierName = ['<b style="color:#d03b3b">✕ weak or legacy</b>', '<b style="color:#b07500">◐ supported, with caveats</b>', '<b style="color:#0ca30c">● strongly supported</b>'][p[2]];
+  tip.innerHTML = `<div class="tn">${p[3]}</div><div class="tb">official MOIA enclave · ${tierName}</div>
+    <div style="font-size:12.5px"><b>${p[4]}</b></div>
+    <div style="font-size:12px;color:var(--ink-2);margin-top:3px">${p[5]}</div>`;
+  tip.style.display = 'block';
+  const r = tip.getBoundingClientRect();
+  let x = ev.clientX + 14, y = ev.clientY + 14;
+  if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
+  if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
+  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+});
+const dP = document.getElementById('den-p'), dF = document.getElementById('den-f');
+dP.addEventListener('click', () => { state.den = 'p'; setSeg(dP, dF); updateThreshLabel(); if (state.mode === 'one') computeBins(); paint(); });
+dF.addEventListener('click', () => { state.den = 'f'; setSeg(dF, dP); updateThreshLabel(); if (state.mode === 'one') computeBins(); paint(); });
+const thresh = document.getElementById('thresh');
+function updateThreshLabel() {
+  document.getElementById('threshval').textContent =
+    `≥ ${state.thresh}% of ${state.den === 'p' ? 'all residents' : 'foreign-born residents'}`;
+}
+thresh.addEventListener('input', () => { state.thresh = +thresh.value; updateThreshLabel(); paint(); });
+const sel = document.getElementById('countrysel');
+const regionOpts = DATA.regions.map((g, i) => [g, i])
+  .sort((a, b) => a[0].localeCompare(b[0]))
+  .map(([g, i]) => `<option value="r${i}">${g} (${fmt(DATA.rtotals[i])})</option>`).join('');
+const countryOpts = DATA.countries.map((c, i) => [c, i])
+  .sort((a, b) => a[0].localeCompare(b[0]))
+  .map(([c, i]) => `<option value="c${i}">${c} (${fmt(DATA.totals[c])})</option>`).join('');
+sel.innerHTML = `<optgroup label="Regions & groups">${regionOpts}</optgroup>` +
+  `<optgroup label="Countries A–Z">${countryOpts}</optgroup>`;
+sel.value = state.sel;
+sel.addEventListener('change', () => { state.sel = sel.value; computeBins(); paint(); });
+
+// ---- header stats ----
+(function () {
+  let pop = 0, fb = 0;
+  for (const v of Object.values(NTAS)) { pop += v.p; fb += v.f; }
+  const topC = DATA.countries[0];
+  document.getElementById('statrow').innerHTML = `
+    <div class="stat"><div class="v">${(fb / 1e6).toFixed(2)}M</div><div class="l">foreign-born New Yorkers</div></div>
+    <div class="stat"><div class="v">${(fb / pop * 100).toFixed(0)}%</div><div class="l">of all residents</div></div>
+    <div class="stat"><div class="v">${fmt(DATA.totals[topC])}</div><div class="l">born in ${topC}, the largest group</div></div>`;
+})();
+
+paint();
+</script>

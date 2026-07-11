@@ -1134,9 +1134,11 @@ function renderDetail(hoverId) {
     for (const em of Object.values(v.v)) { const p = em[0] / v.f; s2 += p * p; }
     if (s2 > 0) {
       const eff = 1 / s2;
-      html += `<div class="kv" style="margin-top:8px"><span class="k">Diversity of origins</span>
-        <span class="v">≈ ${eff.toFixed(0)} communities</span></div>
-      <div class="flag">as if the foreign-born population were split evenly among this many countries</div>`;
+      const tier = eff < 5 ? 'one group dominates' : eff < 15 ? 'moderately mixed' : 'highly mixed';
+      html += `<div class="kv" style="margin-top:8px"><span class="k">How mixed?</span>
+        <span class="v">${eff.toFixed(0)} · ${tier}</span></div>
+      <div class="flag">immigrants here are as varied as ${eff.toFixed(0)} equal-sized groups would be.
+      NYC neighborhoods range from 2 (Chinatown — one dominant group) to 34 (the most mixed).</div>`;
     }
   }
   html += '<div class="hint">● reliable · ◐ use with caution · ○ unreliable (ACS margin of error)</div>';

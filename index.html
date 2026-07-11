@@ -128,13 +128,15 @@ svg.z2 .road-l { display: inline; }
 .chklabel { font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
   cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink); }
 .chklabel input { accent-color: var(--accent); }
-#pins { display: none; }
-.mapcard.showpins #pins { display: block; }
-#pins circle { stroke: var(--surface); cursor: pointer; }
-.pin2 { fill: #0ca30c; }
-.pin1 { fill: #fab219; }
-.pin0 { fill: #d03b3b; }
-.pin3 { fill: var(--ink); }   /* data-spotted — enclaves the Passport list missed */
+#pins .pin { display: none; cursor: pointer; }
+.mapcard.showpins #pins .pass { display: block; }
+.mapcard.showmiss #pins .miss { display: block; }
+#pins .pin path { stroke: var(--surface); stroke-width: 1.2; }
+#pins .pin .hole { fill: var(--surface); stroke: none; }
+.pin2 path { fill: #0ca30c; }
+.pin1 path { fill: #fab219; }
+.pin0 path { fill: #d03b3b; }
+.pin3 path { fill: var(--ink); }   /* data-spotted — enclaves the Passport list missed */
 #siglabels, #domlabels { display: none; pointer-events: none; }
 .mapcard.sig svg.z2 #siglabels { display: block; }
 .mapcard.dom svg.z2 #domlabels { display: block; }
@@ -315,8 +317,9 @@ footer a { color: var(--accent); }
     <span class="threshval" id="threshval">≥ 5% of all residents</span>
   </div>
   <div class="ctl">
-    <label for="pinchk">Overlay</label>
+    <label>Overlays</label>
     <label class="chklabel"><input type="checkbox" id="pinchk"> NYC Neighborhood Passport Immigrant Enclaves</label>
+    <label class="chklabel" style="margin-left:14px"><input type="checkbox" id="misschk"> Some missing enclaves</label>
   </div>
   <div class="ctl">
     <label>Theme</label>
@@ -538,9 +541,14 @@ const PINS = [
   [40.6050, -73.9560, 3, 'Georgian Gravesend–Homecrest', '1,126 Georgia-born here; thousands more nearby', 'South Brooklyn’s ex-Soviet belt is as Georgian, Uzbek and Kazakh as it is Russian or Ukrainian.'],
   [40.8630, -73.8560, 3, 'Albanian Allerton–Pelham Gardens', '~1,500 Albania-born across the east Bronx', 'Where Bronx Albanian life actually lives today — the Fordham “Little Albania” era has passed.'],
 ];
+// classic map-marker teardrop, tip anchored at the location; scaled per zoom in applyView
+const PIN_PATH = 'M0 0C-1.6-6.2-8.5-9-8.5-16.2a8.5 8.5 0 1 1 17 0C8.5-9 1.6-6.2 0 0Z';
 frag.push('<g id="pins">');
 PINS.forEach((p, i) => {
-  frag.push(`<circle class="pin${p[2]}" data-pin="${i}" cx="${px(p[1]).toFixed(1)}" cy="${py(p[0]).toFixed(1)}" r="5"/>`);
+  const x = px(p[1]).toFixed(1), y = py(p[0]).toFixed(1);
+  const kind = p[2] === 3 ? 'miss' : 'pass';
+  frag.push(`<g class="pin ${kind} pin${p[2]}" data-pin="${i}" data-x="${x}" data-y="${y}">
+    <path d="${PIN_PATH}"/><circle class="hole" cx="0" cy="-16.2" r="3.4"/></g>`);
 });
 frag.push('</g>');
 svg.innerHTML = frag.join('');
@@ -927,9 +935,9 @@ function applyView() {
     t.setAttribute('font-size', (7 * k).toFixed(2));
     t.style.strokeWidth = (1.6 * k).toFixed(3);   // inline style so the CSS rule can't re-inflate it
   });
-  svg.querySelectorAll('#pins circle').forEach(c => {
-    c.setAttribute('r', (5.5 * k).toFixed(2));
-    c.setAttribute('stroke-width', (1.4 * k).toFixed(2));
+  svg.querySelectorAll('#pins .pin').forEach(g => {
+    const s = (g.classList.contains('miss') ? 1.5 : 1.0) * k;   // missing-enclave pins run larger
+    g.setAttribute('transform', `translate(${g.dataset.x} ${g.dataset.y}) scale(${s.toFixed(3)})`);
   });
   document.getElementById('zin').disabled = view.w <= W / MAXZOOM + 0.01;
   document.getElementById('zout').disabled = view.w >= W - 0.01;
@@ -1235,7 +1243,7 @@ svg.addEventListener('mousemove', ev => {
   setHovNta(null);
   const t = ev.target.closest('.nta');
   if (t) { const id = t.id.slice(2); showTip(ev, id); if (!state.pinned) renderDetail(id); }
-  else if (!ev.target.closest('#pins circle')) { tip.style.display = 'none'; if (!state.pinned) renderDetail(); }
+  else if (!ev.target.closest('#pins .pin')) { tip.style.display = 'none'; if (!state.pinned) renderDetail(); }
 });
 svg.addEventListener('mouseleave', () => { setHovNta(null); tip.style.display = 'none'; if (!state.pinned) renderDetail(); });
 svg.addEventListener('click', ev => {
@@ -1334,8 +1342,12 @@ const pinchk = document.getElementById('pinchk');
 pinchk.addEventListener('change', () => {
   document.querySelector('.mapcard').classList.toggle('showpins', pinchk.checked);
 });
+const misschk = document.getElementById('misschk');
+misschk.addEventListener('change', () => {
+  document.querySelector('.mapcard').classList.toggle('showmiss', misschk.checked);
+});
 svg.addEventListener('mousemove', ev => {
-  const pin = ev.target.closest('#pins circle');
+  const pin = ev.target.closest('#pins .pin');
   if (!pin) return;
   const p = PINS[+pin.dataset.pin];
   const tierName = ['<b style="color:#d03b3b">✕ weak or legacy</b>', '<b style="color:#b07500">◐ supported, with caveats</b>', '<b style="color:#0ca30c">● strongly supported</b>', '<b>★ data-spotted — not on the Passport list</b>'][p[2]];

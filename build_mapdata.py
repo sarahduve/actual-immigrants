@@ -135,9 +135,9 @@ for nta, a in agg.items():
 def world_group(label_path):
     if 'Caribbean' in label_path: return 0
     if 'Central America' in label_path or 'South America' in label_path: return 1
+    if 'South Eastern Asia' in label_path: return 4   # before 'Eastern Asia' — substring collision
     if 'Eastern Asia' in label_path: return 2
     if 'South Central Asia' in label_path: return 3
-    if 'South Eastern Asia' in label_path: return 4
     if 'Western Asia' in label_path or 'Northern Africa' in label_path: return 5
     if 'Africa' in label_path: return 6
     if 'Europe' in label_path: return 7

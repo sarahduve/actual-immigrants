@@ -125,13 +125,6 @@ select {
 .road-s { stroke-width: 0.9; }
 .road-l { stroke-width: 0.55; display: none; }
 svg.z2 .road-l { display: inline; }
-.roadlabel {
-  fill: var(--muted); display: none; letter-spacing: 0.04em;
-  paint-order: stroke; stroke: var(--surface); stroke-width: 1.4px;
-}
-svg.z3 .roadlabel { display: inline; }
-.mapcard.mix .roadlabel { stroke: var(--page); }
-.mapcard.sig .roadlabel { display: none; }   /* country names take priority in Signature view */
 .chklabel { font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
   cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink); }
 .chklabel input { accent-color: var(--accent); }
@@ -146,7 +139,9 @@ svg.z3 .roadlabel { display: inline; }
 .mapcard.dom svg.z2 #domlabels { display: block; }
 .siglabel {
   fill: var(--ink); font-weight: 600; text-anchor: middle;
-  paint-order: stroke; stroke: var(--surface); stroke-width: 2px;
+  paint-order: stroke; stroke: var(--surface);
+  /* stroke-width set inline per zoom in applyView — a fixed width is in map units
+     and swells into a blob when zoomed in */
 }
 #tracts { display: none; }
 #tracts path { stroke: none; }
@@ -307,7 +302,7 @@ footer a { color: var(--accent); }
   </div>
   <div class="ctl">
     <label for="pinchk">Overlay</label>
-    <label class="chklabel"><input type="checkbox" id="pinchk"> NYC Neighborhood Passport's Immigrant Enclaves</label>
+    <label class="chklabel"><input type="checkbox" id="pinchk"> NYC Neighborhood Passport Immigrant Enclaves</label>
   </div>
 </div>
 
@@ -361,6 +356,10 @@ footer a { color: var(--accent); }
   table does; combine them with mainland China and this map shows 392,910 — the same neck-and-neck
   story on a slightly earlier clock. (The report aggregates the same 2,327 census tracts into the
   same neighborhood areas used here.)</p>
+  <p><b>The newest arrivals are undercounted:</b> the Census Bureau later revised New York City's
+  mid-2023 population upward by roughly 133,000 — largely asylum seekers — but that correction is
+  not reflected in the 2023 ACS, and the 2019–2023 five-year average used here dilutes the
+  2022–2023 influx further. The city's newest communities are larger than this map shows.</p>
   <p><b>Reading the estimates:</b> ACS figures are survey estimates with sampling error. Margins of
   error were combined across tracts (root sum of squares); estimates flagged
   “use with caution” have a coefficient of variation of 12–40%, and “unreliable” above 40%.
@@ -378,7 +377,7 @@ footer a { color: var(--accent); }
   invisible to the census by design: there is no “Palestine” or “Tibet” birth code, and Tajikistan
   is folded into “Other South Central Asia”.</p>
   <p><b>Streets:</b> Census TIGER 2023 road centerlines — highways and major routes always shown;
-  the named arterial grid appears past ~2× zoom, and (where the full data files are hosted) the
+  the arterial grid appears past ~2× zoom, and (where the full data files are hosted) the
   complete local street grid past ~3.5×.</p>
   <p><b>Place of birth, not ancestry:</b> unlike ancestry maps (such as the New York Times' 2026
   “American Mosaic”, whose blended-color convention the Mosaic view borrows), this map counts only
@@ -457,48 +456,9 @@ for (const g of obj.geometries) {
 }
 const ROADS = JSON.parse(document.getElementById('roadsdata').textContent);
 frag.push('<g id="roads" aria-hidden="true">');
-const labelCarriers = [];
-const labelCands = [];   // dedupe before emitting: streets like the BQE come in dozens
-                         // of pieces, and stacking one label per piece makes ink blobs
-let rid = 0;
 for (const [k, cls] of [['l', 'road-l'], ['s', 'road-s'], ['p', 'road-p']])
-  for (const [name, line] of ROADS[k]) {
-    const d = 'M' + line.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L');
-    frag.push(`<path class="${cls}" d="${d}"/>`);
-    // long named streets get a label carrier (left-to-right so text reads upright)
-    let span = 0;
-    for (let i = 1; i < line.length; i++) span += Math.hypot(line[i][0] - line[i-1][0], line[i][1] - line[i-1][1]);
-    const minorName = (/\d/.test(name) && /St$/.test(name)) || /(Pl|Ct|Ter|Ln|Walk|Loop)$/.test(name);
-    if (name && span > 0.05 && !/^I- /.test(name) && !minorName) {
-      // straight rotated label on the longest straight stretch — text-on-path piles
-      // glyphs up at the sharp vertices of simplified geometry
-      let bestLen = 0, bi = 1;
-      for (let i = 1; i < line.length; i++) {
-        const d0 = Math.hypot(line[i][0] - line[i-1][0], line[i][1] - line[i-1][1]);
-        if (d0 > bestLen) { bestLen = d0; bi = i; }
-      }
-      let ax = px(line[bi-1][0]), ay = py(line[bi-1][1]), bx = px(line[bi][0]), by = py(line[bi][1]);
-      if (bx < ax) { [ax, bx] = [bx, ax]; [ay, by] = [by, ay]; }   // keep text upright
-      const mx = (ax + bx) / 2, my = (ay + by) / 2;
-      const ang = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
-      labelCands.push({ name, span, mx, my, ang });
-    }
-  }
-// one label per street name, unless anchors sit far apart (Broadway earns two)
-{
-  const byName = {};
-  for (const c of labelCands) (byName[c.name] ??= []).push(c);
-  for (const name of Object.keys(byName)) {
-    const placed = [];
-    for (const c of byName[name].sort((a, b) => b.span - a.span)) {
-      if (placed.every(p => Math.hypot(p.mx - c.mx, p.my - c.my) > 150)) {
-        labelCarriers.push(`<text class="roadlabel" text-anchor="middle" x="${c.mx.toFixed(1)}" y="${c.my.toFixed(1)}" dy="-1.5" transform="rotate(${c.ang.toFixed(1)} ${c.mx.toFixed(1)} ${c.my.toFixed(1)})">${c.name}</text>`);
-        placed.push(c);
-      }
-    }
-  }
-}
-frag.push(labelCarriers.join(''));
+  for (const [name, line] of ROADS[k])
+    frag.push(`<path class="${cls}" d="M${line.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L')}"/>`);
 frag.push('</g>');
 frag.push('<g id="siglabels"></g><g id="domlabels"></g>');
 
@@ -897,8 +857,10 @@ function applyView() {
   svg.classList.toggle('z3', z3);
   if (z3) ensureStreets();
   const k = view.w / W;
-  svg.querySelectorAll('.roadlabel').forEach(t => t.setAttribute('font-size', (6.5 * k).toFixed(2)));
-  svg.querySelectorAll('.siglabel').forEach(t => t.setAttribute('font-size', (7 * k).toFixed(2)));
+  svg.querySelectorAll('.siglabel').forEach(t => {
+    t.setAttribute('font-size', (7 * k).toFixed(2));
+    t.style.strokeWidth = (1.6 * k).toFixed(3);   // inline style so the CSS rule can't re-inflate it
+  });
   svg.querySelectorAll('#pins circle').forEach(c => {
     c.setAttribute('r', (5.5 * k).toFixed(2));
     c.setAttribute('stroke-width', (1.4 * k).toFixed(2));

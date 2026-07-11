@@ -255,6 +255,7 @@ svg.focusmode .nta.focused { fill-opacity: 1; }
 #tooltip .tr .tv b { color: var(--ink); }
 
 .tablewrap { margin-top: 18px; }
+.tswipe { display: none; }
 .linkbtn {
   font: inherit; font-size: 13px; color: var(--accent); background: none; border: 0;
   cursor: pointer; padding: 4px 0; text-decoration: underline;
@@ -322,6 +323,11 @@ footer a { color: var(--accent); }
   .zoomctl { top: 8px; left: 8px; }
   #tooltip { max-width: calc(100vw - 20px); }
   .panel { padding: 12px 13px; }
+  .tswipe { display: block; font-size: 12px; color: var(--muted); margin: 2px 0 6px; }
+  th, td { padding: 6px 8px; font-size: 12px; }
+  th:first-child, td:first-child { position: sticky; left: 0; z-index: 2; background: var(--surface);
+    box-shadow: 2px 0 0 var(--grid); max-width: 46vw; overflow: hidden; text-overflow: ellipsis; }
+  th:first-child { z-index: 3; }   /* above both the sticky header row and sticky body cells */
 }
 @media (max-width: 400px) {
   #tooltip { font-size: 12px; }
@@ -412,6 +418,7 @@ footer a { color: var(--accent); }
 <div class="tablewrap">
   <button class="linkbtn" id="tabletoggle" aria-expanded="false">Show data table (all 197 residential neighborhoods)</button>
   <div id="tablesec">
+    <div class="tswipe">swipe the table sideways for the other columns →</div>
     <div class="tscroll"><table id="datatable">
       <thead><tr>
         <th data-k="n">Neighborhood</th><th data-k="b">Borough</th>

@@ -1219,8 +1219,11 @@ svg.addEventListener('mousemove', ev => {
         .filter(x => x[1] > 0).map(x => `${x[0]} ${(x[1] / tot * 100).toFixed(0)}%`).join(' · ');
       mixLine = `<div class="tr"><span>Mix</span><span class="tv">${top}</span></div>`;
     }
-    const domLine = t[2] >= 0 && t[3] > 0
-      ? `<div class="tr"><span>Largest: ${DATA.countries[t[2]]}</span><span class="tv"><b>${fmt(t[3])}</b> ±${fmt(t[4])}</span></div>` : '';
+    // name a largest country only when the tract estimate clears the reliability bar —
+    // at this scale half of them are noise (e.g. "136 ±207")
+    const domLine = t[2] >= 0 && t[3] > 0 && cv(t[3], t[4]) <= 40
+      ? `<div class="tr"><span>Largest: ${DATA.countries[t[2]]}</span><span class="tv"><b>${fmt(t[3])}</b> ±${fmt(t[4])}</span></div>`
+      : '<div class="tr"><span style="color:var(--muted)">Too few people per country to name a largest at tract scale — click for the neighborhood profile</span></div>';
     tip.innerHTML = `<div class="tn">Census tract</div>
       <div class="tb">${ntaName}${fmt(t[0])} residents · ${t[0] ? Math.round(t[1] / t[0] * 100) : 0}% foreign-born</div>
       ${domLine}${mixLine}`;

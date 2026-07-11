@@ -436,12 +436,16 @@ footer a { color: var(--accent); }
   </details>
   <details>
     <summary>What does “signature group” mean?</summary>
-    <p>The community most concentrated in a neighborhood <i>relative to its share of the whole
-    city</i> — a location quotient, the same math search engines use to find the words that
-    distinguish a document. 3× means a community is three times as concentrated there as its
-    citywide norm. That lets a small group stand out — Uzbekistan-born Bukharians light up Forest
-    Hills — while a very large one, like Dominican New Yorkers, registers only in the neighborhoods
-    where it is genuinely concentrated, not everywhere it is merely numerous. Signature picks
+    <p>The birthplace most <i>over-represented</i> in a neighborhood relative to its share of the
+    whole city — a location quotient, the same math search engines use to find the words that
+    distinguish a document. 3× means a group is three times as concentrated there as its citywide
+    norm. That lets a small group stand out — Uzbekistan-born Bukharians light up Forest Hills —
+    while a very large one, like Dominican New Yorkers, registers only where it is genuinely
+    concentrated, not everywhere it is merely numerous. Note what this measures: distinctiveness,
+    not size — and the comparison base is the foreign-born population, so in neighborhoods with few
+    immigrants overall, whoever is present looms large in a small pool. That is equally how Little
+    Sri Lanka registers on Staten Island and how British or Australian expats register in
+    brownstone Brooklyn; the map reports both and lets you judge. Signature picks
     require at least 400 people and a usable margin of error; when a runner-up falls inside the
     winner's margin, the map declares a statistical tie rather than picking one. All “× citywide”
     figures on this map — including the enclave pins — compare a group's share of the
@@ -1162,9 +1166,10 @@ function renderLegend() {
       const c = classify(v, id);
       counts[c] = (counts[c] || 0) + 1;
     }
-    let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">The community most
-      concentrated in each neighborhood <i>relative to its citywide share</i> — at least 3× and 400+
-      people. Hue = world region; each country keeps its own shade, and the names are on the map.</div>`;
+    let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">The birthplace most
+      <i>over-represented</i> in each neighborhood — who is unusually likely to live here, not who is
+      most numerous. At least 3× the citywide rate and 400+ people. Hue = world region; each country
+      keeps its own shade, and the names are on the map.</div>`;
     GROUPS.forEach((gname, i) => {
       const k = 'c' + GSLOT[i], n = counts[k] || 0;
       if (!n) return;

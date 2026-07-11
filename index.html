@@ -511,6 +511,9 @@ for (const [k, cls] of [['l', 'road-l'], ['s', 'road-s'], ['p', 'road-p']])
   for (const [name, line] of ROADS[k])
     frag.push(`<path class="${cls}" d="M${line.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L')}"/>`);
 frag.push('</g>');
+// highlight layer: hovered/pinned outlines are re-drawn here, above every fill, because a
+// polygon's own stroke gets half-covered by whichever neighbors are painted after it
+frag.push('<g id="hl" style="pointer-events:none"></g>');
 frag.push('<g id="siglabels"></g><g id="domlabels"></g>');
 
 // MOIA "NYC Immigrant Enclaves" list, checked against ACS 2019-2023 (tier 2 = strongly
@@ -715,6 +718,7 @@ function paint() {
   paintSigFills();
   if (state.mode === 'dom') renderDomLabels();
   if (state.mode === 'mos') ensureTracts();
+  drawHl();
   renderLegend();
   renderDetail();
   renderTable();
@@ -1266,11 +1270,21 @@ function placeTip(ev) {
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
 let hovNta = null;
+function drawHl() {
+  const hl = document.getElementById('hl');
+  const mk = (id, w) => {
+    const el = id && document.getElementById('p-' + id);
+    return el ? `<path d="${el.getAttribute('d')}" style="fill:none;stroke:var(--ink);stroke-width:${w};vector-effect:non-scaling-stroke;stroke-linejoin:round"/>` : '';
+  };
+  let html = '';
+  if (hovNta && hovNta !== state.pinned) html += mk(hovNta, 1.5);
+  if (state.pinned) html += mk(state.pinned, 2.4);
+  hl.innerHTML = html;
+}
 function setHovNta(id) {
   if (hovNta === id) return;
-  if (hovNta) document.getElementById('p-' + hovNta)?.classList.remove('hovnta');
   hovNta = id || null;
-  if (hovNta) document.getElementById('p-' + hovNta)?.classList.add('hovnta');
+  drawHl();
 }
 svg.addEventListener('mousemove', ev => {
   const tp = ev.target.closest('#tracts path');
@@ -1299,7 +1313,12 @@ svg.addEventListener('mousemove', ev => {
   }
   setHovNta(null);
   const t = ev.target.closest('.nta');
-  if (t) { const id = t.id.slice(2); showTip(ev, id); if (!state.pinned) renderDetail(id); }
+  if (t) {
+    const id = t.id.slice(2);
+    if (NTAS[id] && NTAS[id].t === '0') setHovNta(id);
+    showTip(ev, id);
+    if (!state.pinned) renderDetail(id);
+  }
   else if (!ev.target.closest('#pins .pin')) { tip.style.display = 'none'; if (!state.pinned) renderDetail(); }
 });
 svg.addEventListener('mouseleave', () => { setHovNta(null); tip.style.display = 'none'; if (!state.pinned) renderDetail(); });

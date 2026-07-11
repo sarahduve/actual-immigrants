@@ -153,7 +153,8 @@ circle.pin0 { fill: #d03b3b; }
 #tracts path:hover { stroke: var(--ink); stroke-width: 0.8; }
 .mapcard.mosaic #tracts { display: block; }
 .mapcard.mosaic .nta { fill: #000; fill-opacity: 0; stroke: var(--baseline); stroke-width: 0.8; pointer-events: none; }
-.mapcard.mosaic .nta.hovnta { stroke: var(--ink); stroke-width: 1.6; }   /* preview: a click pins this neighborhood */
+.mapcard.mosaic .nta.hovnta,
+.mapcard.mosaic .nta.pinned { stroke: var(--ink); stroke-width: 1.6; }   /* preview + pinned outline */
 .mapcard.mosaic .nta.park { fill: var(--park-fill); fill-opacity: 1; }
 .mapcard.mosaic { --road: var(--grid); }
 .road-x { stroke-width: 0.4; display: none; }
@@ -653,6 +654,7 @@ function paint() {
     if (!el) continue;
     let cls = 'nta ' + classify(v, id);
     if (state.pinned === id) cls += ' pinned';
+    if (hovNta === id) cls += ' hovnta';   // paint() rewrites classes — keep the hover outline alive
     if (state.focus !== null && v.t === '0') {
       const match = (state.mode === 'dom' || state.mode === 'sig') && classify(v, id) === state.focus;
       if (match) cls += ' focused';

@@ -291,6 +291,26 @@ footer a { color: var(--accent); }
   .main { grid-template-columns: 1fr; }
   .rail { flex-direction: column; }
 }
+@media (max-width: 640px) {
+  .wrap { padding: 16px 12px 40px; }
+  h1 { font-size: 21px; }
+  .statrow { gap: 14px 24px; margin-top: 12px; }
+  .stat .v { font-size: 19px; }
+  .controls { padding: 12px; gap: 12px 20px; margin: 12px 0; }
+  .controls > .ctl:first-child { flex: 1 1 100%; }
+  .controls > .ctl:first-child .seg { display: flex; }
+  .controls > .ctl:first-child .seg button { flex: 1 1 auto; padding: 7px 2px; font-size: 12px; line-height: 1.2; }
+  .ctl input[type=range] { width: min(150px, 44vw); }
+  .mapcard { padding: 6px; }
+  .zoomctl { top: 10px; left: 10px; }
+  #tooltip { max-width: calc(100vw - 20px); }
+  .panel { padding: 12px 13px; }
+}
+@media (hover: none) and (pointer: coarse) {
+  .zoomctl button { width: 38px; height: 38px; font-size: 18px; }
+  .chklabel input[type=checkbox] { width: 17px; height: 17px; }
+  .seg button { padding-top: 8px; padding-bottom: 8px; }
+}
 </style>
 
 <div class="wrap">
@@ -1110,12 +1130,30 @@ svg.addEventListener('wheel', ev => {
 }, { passive: false });
 svg.addEventListener('dblclick', ev => { ev.preventDefault(); zoomAt(ev.clientX, ev.clientY, ev.shiftKey ? 1 / 1.8 : 1.8); });
 let pan = null, dragged = false;
+const ptrs = new Map();   // live pointers, for two-finger pinch
+let pinchD = 0;
 svg.addEventListener('pointerdown', ev => {
-  if (ev.button !== 0) return;
-  pan = { x: ev.clientX, y: ev.clientY }; dragged = false;
+  if (ev.pointerType === 'mouse' && ev.button !== 0) return;
+  ptrs.set(ev.pointerId, { x: ev.clientX, y: ev.clientY });
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    pinchD = Math.hypot(a.x - b.x, a.y - b.y);
+    pan = null; dragged = true;   // a pinch is not a tap
+  } else if (ptrs.size === 1) {
+    pan = { x: ev.clientX, y: ev.clientY }; dragged = false;
+  }
 });
 let panRaf = 0;
 window.addEventListener('pointermove', ev => {
+  const pt = ptrs.get(ev.pointerId);
+  if (pt) { pt.x = ev.clientX; pt.y = ev.clientY; }
+  if (ptrs.size === 2) {
+    const [a, b] = [...ptrs.values()];
+    const dNow = Math.hypot(a.x - b.x, a.y - b.y);
+    if (pinchD > 0 && dNow > 0) zoomAt((a.x + b.x) / 2, (a.y + b.y) / 2, dNow / pinchD);
+    pinchD = dNow;
+    return;
+  }
   if (!pan) return;
   const dx = ev.clientX - pan.x, dy = ev.clientY - pan.y;
   if (!dragged && Math.hypot(dx, dy) < 4) return;
@@ -1128,12 +1166,32 @@ window.addEventListener('pointermove', ev => {
   clampView();
   if (!panRaf) panRaf = requestAnimationFrame(() => { panRaf = 0; applyView(); });
 });
-function endPan() {
-  pan = null; svg.classList.remove('panning');
+function endPan(ev) {
+  ptrs.delete(ev.pointerId);
+  if (ptrs.size === 1) {   // pinch ended with one finger down: hand off to panning
+    const [a] = [...ptrs.values()];
+    pan = { x: a.x, y: a.y }; pinchD = 0;
+    return;
+  }
+  if (ptrs.size > 0) return;
+  pinchD = 0; pan = null; svg.classList.remove('panning');
   setTimeout(() => { dragged = false; }, 0);   // outlive this gesture's click, not the next one
 }
 window.addEventListener('pointerup', endPan);
 window.addEventListener('pointercancel', endPan);   // touch scroll steals the gesture
+// double-tap to zoom: touch fires no dblclick on iOS
+let lastTap = 0, lastTapAt = null;
+svg.addEventListener('pointerup', ev => {
+  if (ev.pointerType !== 'touch' || dragged || ptrs.size > 1) return;
+  const now = performance.now();
+  if (now - lastTap < 350 && lastTapAt &&
+      Math.hypot(ev.clientX - lastTapAt[0], ev.clientY - lastTapAt[1]) < 40) {
+    zoomAt(ev.clientX, ev.clientY, 1.8); lastTap = 0;
+  } else { lastTap = now; lastTapAt = [ev.clientX, ev.clientY]; }
+});
+svg.addEventListener('gesturestart', ev => ev.preventDefault());   // iOS page-zoom over the map
+if (matchMedia('(hover: none)').matches)
+  document.getElementById('maphint').textContent = 'double-tap to zoom \u00b7 pinch or drag when zoomed';
 document.addEventListener('keydown', ev => {
   if (ev.key === 'Escape' && state.pinned) { state.pinned = null; paint(); }
 });
@@ -1366,6 +1424,7 @@ function showTip(ev, id) {
   let x = ev.clientX + 14, y = ev.clientY + 14;
   if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
+  x = Math.max(8, x); y = Math.max(8, y);
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
 function placeTip(ev) {
@@ -1374,6 +1433,7 @@ function placeTip(ev) {
   let x = ev.clientX + 14, y = ev.clientY + 14;
   if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
+  x = Math.max(8, x); y = Math.max(8, y);
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
 let hovNta = null;
@@ -1545,6 +1605,7 @@ svg.addEventListener('mousemove', ev => {
   let x = ev.clientX + 14, y = ev.clientY + 14;
   if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
+  x = Math.max(8, x); y = Math.max(8, y);
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 });
 const thresh = document.getElementById('thresh');

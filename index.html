@@ -68,7 +68,7 @@ header { margin-bottom: 18px; position: relative; }
 .dictbg {
   position: absolute; top: 2px; right: 0; width: 44%;
   font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
-  color: var(--ink); opacity: 0.075; pointer-events: none; user-select: none;
+  color: var(--ink); opacity: 0.16; pointer-events: none; user-select: none;
   line-height: 1.18; z-index: 0;
 }
 .dictbg .dw { font-size: 54px; font-weight: 700; font-style: italic; letter-spacing: -0.01em; }
@@ -314,6 +314,14 @@ footer a { color: var(--accent); }
   <div class="ctl">
     <label for="pinchk">Overlay</label>
     <label class="chklabel"><input type="checkbox" id="pinchk"> NYC Neighborhood Passport Immigrant Enclaves</label>
+  </div>
+  <div class="ctl">
+    <label>Theme</label>
+    <span class="seg" role="group" aria-label="Color theme">
+      <button id="th-auto" class="on">Auto</button>
+      <button id="th-light">Light</button>
+      <button id="th-dark">Dark</button>
+    </span>
   </div>
 </div>
 
@@ -1290,6 +1298,20 @@ function setMode(mode) {
   paint();
 }
 for (const m of Object.keys(MODEBTN)) MODEBTN[m].addEventListener('click', () => setMode(m));
+
+// theme control: Auto follows the OS; Light/Dark force it (persisted)
+const THBTN = { auto: document.getElementById('th-auto'), light: document.getElementById('th-light'), dark: document.getElementById('th-dark') };
+function setTheme(mode) {
+  for (const [m, b] of Object.entries(THBTN)) b.classList.toggle('on', m === mode);
+  if (mode === 'auto') delete document.documentElement.dataset.theme;
+  else document.documentElement.dataset.theme = mode;
+  try { localStorage.setItem('theme', mode); } catch (e) {}
+}
+for (const m of Object.keys(THBTN)) THBTN[m].addEventListener('click', () => setTheme(m));
+try {
+  const saved = localStorage.getItem('theme');
+  if (saved === 'light' || saved === 'dark') setTheme(saved);
+} catch (e) {}
 
 const pinchk = document.getElementById('pinchk');
 pinchk.addEventListener('change', () => {

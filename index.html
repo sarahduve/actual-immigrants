@@ -1,4 +1,4 @@
-<title>NYC Neighborhoods by Country of Birth</title>
+<title>Actual Immigrants — NYC by Country of Birth</title>
 <style>
 :root {
   --page: #f9f9f7;
@@ -134,6 +134,7 @@ svg.z2 .road-l { display: inline; }
 .pin2 { fill: #0ca30c; }
 .pin1 { fill: #fab219; }
 .pin0 { fill: #d03b3b; }
+.pin3 { fill: var(--ink); }   /* data-spotted — enclaves the Passport list missed */
 #siglabels, #domlabels { display: none; pointer-events: none; }
 .mapcard.sig svg.z2 #siglabels { display: block; }
 .mapcard.dom svg.z2 #domlabels { display: block; }
@@ -259,11 +260,11 @@ footer a { color: var(--accent); }
   color: var(--muted); margin-bottom: 2px; }
 .faq details { border-top: 1px solid var(--grid); }
 .faq details:last-of-type { border-bottom: 1px solid var(--grid); }
-.faq summary { padding: 8px 2px; font-size: 13px; font-weight: 600; color: var(--ink-2);
+.faq summary { padding: 10px 2px; font-size: 14.5px; font-weight: 600; color: var(--ink-2);
   cursor: pointer; list-style-position: outside; }
 .faq summary:hover, .faq details[open] summary { color: var(--ink); }
 .faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
-.faq details p { margin: 0 2px 12px; color: var(--ink-2); }
+.faq details p { margin: 0 2px 14px; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
 
 @media (max-width: 900px) {
   .main { grid-template-columns: 1fr; }
@@ -274,19 +275,19 @@ footer a { color: var(--accent); }
 <div class="wrap">
 <header>
   <div class="dictbg" aria-hidden="true">
-    <div class="dw">im&#183;mi&#183;grant<span class="dp"> /&#712;imiɡr&#601;nt/ noun</span></div>
-    <div class="dd">a person who comes to a country to take up permanent residence</div>
-    <div class="ds">— Merriam-Webster</div>
+    <div class="dw">im&#183;mi&#183;grant<span class="dp"> /&#712;&#618;m.&#601;.&#609;r&#601;nt/ noun</span></div>
+    <div class="dd">a person who has come to a different country in order to live there permanently</div>
+    <div class="ds">— Cambridge Dictionary</div>
   </div>
   <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods</p>
   <h1>NYC neighborhoods by country of birth</h1>
-  <p class="sub">Several ways to read the same census data. <b>Largest community</b> colors each
-  neighborhood by its biggest foreign-born group. <b>Signature</b> asks a sharper question —
-  which community is most distinctively <i>here</i>, compared to its share of the city as a
-  whole — and that's the view that surfaces Little Thailand in Elmhurst or the Bukharian
-  corridor in Forest Hills instead of repeating the citywide giants. <b>Mix</b> shows every
-  population as coexisting dots, and <b>single origin</b> traces any of 125 birthplaces or
-  18 regions.</p>
+  <p class="sub">Several ways to read the same census data. <b>Top birthplace</b> colors each
+  neighborhood by the country where the most of its foreign-born residents were born.
+  <b>Signature</b> asks a different question — not who is biggest here, but who is unusually
+  concentrated here compared to the rest of the city. That's the view that finds Little Thailand
+  in Elmhurst and the Bukharian corridor in Forest Hills: groups too small to top any
+  neighborhood's list, but unmistakably rooted in one place. <b>Mix</b> shows every population as
+  coexisting dots, and <b>by country</b> traces any of 125 birthplaces or 18 regions.</p>
   <div class="statrow" id="statrow"></div>
 </header>
 
@@ -294,11 +295,11 @@ footer a { color: var(--accent); }
   <div class="ctl">
     <label>View</label>
     <span class="seg" role="group" aria-label="View mode">
-      <button id="mode-dom" class="on">Largest community</button>
+      <button id="mode-dom" class="on">Top birthplace</button>
       <button id="mode-sig">Signature</button>
       <button id="mode-mos" style="display:none">Mosaic</button>
       <button id="mode-mix">Mix</button>
-      <button id="mode-one">Single origin</button>
+      <button id="mode-one">By country</button>
     </span>
   </div>
   <div class="ctl" id="ctl-country" style="display:none">
@@ -343,8 +344,8 @@ footer a { color: var(--accent); }
       <thead><tr>
         <th data-k="n">Neighborhood</th><th data-k="b">Borough</th>
         <th class="num" data-k="p">Population</th><th class="num" data-k="fbpct">Foreign-born</th>
-        <th data-k="d">Largest community</th>
-        <th data-k="sig">Signature community</th>
+        <th data-k="d">Top birthplace</th>
+        <th data-k="sig">Signature group</th>
       </tr></thead>
       <tbody></tbody>
     </table></div>
@@ -370,8 +371,7 @@ footer a { color: var(--accent); }
     mean something, large enough for reliable survey estimates. NTA boundaries are built from tract
     math, not lived experience, so they sometimes split what people consider one neighborhood —
     that's why there's a “Bushwick (West)” and a “Bushwick (East)”, and why the city's Newest New
-    Yorkers report merges the 197 residential NTAs into 164 more relatable combinations. It's also
-    the geography Population FactFinder uses — which is where this whole project started.</p>
+    Yorkers report merges the 197 residential NTAs into 164 more relatable combinations.</p>
   </details>
   <details>
     <summary>How reliable are the numbers?</summary>
@@ -400,7 +400,7 @@ footer a { color: var(--accent); }
     city's newest communities are larger than this map shows.</p>
   </details>
   <details>
-    <summary>What does “signature community” mean?</summary>
+    <summary>What does “signature group” mean?</summary>
     <p>The community most concentrated in a neighborhood <i>relative to its share of the whole
     city</i> — a location quotient, the same math search engines use to find the words that
     distinguish a document. 3× means a community is three times as concentrated there as its
@@ -519,6 +519,13 @@ const PINS = [
   [40.8030, -73.9520, 1, 'Little Senegal (116th St)', '747 Senegal-born · 12× citywide rate', 'Real but small and shrinking with Harlem gentrification.'],
   [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · half the citywide rate', 'Cultural landmark, not a residential enclave — Ukrainian NYC is south Brooklyn.'],
   [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 7× citywide rate', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
+  // tier 3 = data-spotted: enclaves the census supports that the Passport list missed
+  [40.6320, -74.0870, 3, 'Little Sri Lanka (Tompkinsville)', '~2,000 Sri Lanka-born across the North Shore', 'The community the Passport map famously left out — every top Sri Lankan neighborhood in the city is on this shore.'],
+  [40.7410, -73.8800, 3, 'Little Thailand (Elmhurst)', '1,633 Thai-born · 12× the citywide level', 'A quarter of all Thai-born New Yorkers live in Elmhurst alone.'],
+  [40.7480, -73.8880, 3, 'Little Indonesia (Elmhurst)', '1,542 Indonesia-born · 14× the citywide level', 'The city’s strongest Indonesian concentration, behind the Whitney Ave food row.'],
+  [40.7285, -73.8500, 3, 'Bukharian Broadway (108th St)', '2,943 Uzbekistan-born in Forest Hills, more in Rego Park', 'The center of Bukharian Jewish New York — the census can only see “born in Uzbekistan”.'],
+  [40.6050, -73.9560, 3, 'Georgian Gravesend–Homecrest', '1,126 Georgia-born here; thousands more nearby', 'South Brooklyn’s ex-Soviet belt is as Georgian, Uzbek and Kazakh as it is Russian or Ukrainian.'],
+  [40.8630, -73.8560, 3, 'Albanian Allerton–Pelham Gardens', '~1,500 Albania-born across the east Bronx', 'Where Bronx Albanian life actually lives today — the Fordham “Little Albania” era has passed.'],
 ];
 frag.push('<g id="pins">');
 PINS.forEach((p, i) => {
@@ -1004,7 +1011,7 @@ function renderLegend() {
       state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
     }));
   } else if (state.mode === 'sig') {
-    title.innerHTML = 'Signature community <span class="h2sub">· colored by world region · click to isolate</span>';
+    title.innerHTML = 'Signature group <span class="h2sub">· colored by world region · click to isolate</span>';
     const counts = {};
     for (const [id, v] of Object.entries(NTAS)) {
       if (v.t !== '0') continue;
@@ -1091,7 +1098,7 @@ function renderDetail(hoverId) {
     }
     lqs.sort((a, b) => b[2] - a[2]);
     if (lqs.length) {
-      html += `<div class="sigblock"><div class="sigtitle">Signature communities</div>
+      html += `<div class="sigblock"><div class="sigtitle">Signature groups</div>
         <div class="sigsub">far more concentrated here than in the city overall</div>`;
       for (const [c, e, lq] of lqs.slice(0, 4)) {
         const gi = DATA.cgroup[DATA.countries.indexOf(c)];
@@ -1102,7 +1109,7 @@ function renderDetail(hoverId) {
       html += '</div>';
     }
   }
-  html += '<div style="margin-top:10px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)">Largest groups</div>';
+  html += '<div style="margin-top:10px;font-size:12px;font-weight:600;letter-spacing:0.06em;text-transform:uppercase;color:var(--muted)">Top birthplaces</div>';
   html += '<div class="cbars">';
   for (const [c, e, m] of rows) {
     const i = TOP8.indexOf(c);
@@ -1292,8 +1299,8 @@ svg.addEventListener('mousemove', ev => {
   const pin = ev.target.closest('#pins circle');
   if (!pin) return;
   const p = PINS[+pin.dataset.pin];
-  const tierName = ['<b style="color:#d03b3b">✕ weak or legacy</b>', '<b style="color:#b07500">◐ supported, with caveats</b>', '<b style="color:#0ca30c">● strongly supported</b>'][p[2]];
-  tip.innerHTML = `<div class="tn">${p[3]}</div><div class="tb">official MOIA enclave · ${tierName}</div>
+  const tierName = ['<b style="color:#d03b3b">✕ weak or legacy</b>', '<b style="color:#b07500">◐ supported, with caveats</b>', '<b style="color:#0ca30c">● strongly supported</b>', '<b>★ data-spotted — not on the Passport list</b>'][p[2]];
+  tip.innerHTML = `<div class="tn">${p[3]}</div><div class="tb">${p[2] === 3 ? 'found by this map' : 'official MOIA enclave'} · ${tierName}</div>
     <div style="font-size:12.5px"><b>${p[4]}</b></div>
     <div style="font-size:12px;color:var(--ink-2);margin-top:3px">${p[5]}</div>`;
   tip.style.display = 'block';

@@ -1,4 +1,6 @@
-# NYC neighborhoods by country of birth
+# Actual Immigrants
+
+An interactive map of NYC neighborhoods by country of birth.
 
 Interactive map of where foreign-born New Yorkers live, built from ACS 2019–2023 place-of-birth
 data. Six views: largest community, signature communities (location quotient), tract-level Mosaic
@@ -23,7 +25,7 @@ python3 -m http.server 8742
 ### GitHub Pages
 
 ```
-git remote add origin git@github.com:<you>/nyc-diaspora-map.git
+git remote add origin git@github.com:<you>/actual-immigrants.git
 git push -u origin main
 # repo Settings → Pages → deploy from branch `main`, root
 ```

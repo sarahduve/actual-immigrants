@@ -7,7 +7,8 @@ data. Five views: top birthplace, signature groups (location quotient, with stat
 declared when margins of error overlap), tract-level Mosaic (blended region colors), dot-density
 Dots, and a by-country/region explorer — plus the city's "Immigrant Enclaves" list audited
 against the data. Residual census write-in lines ("West Indies", "Other …") count toward totals
-but never compete as countries; all "× citywide" multiples use the foreign-born base.
+but never compete as countries; all "× citywide" multiples compare shares of all residents
+(group share of the neighborhood vs group share of the city).
 
 **Place of birth, not ancestry.** Unlike ancestry maps (e.g. the NYT's 2026 "American Mosaic"),
 this counts only people actually born abroad. Ancestry is an identity claim that persists across

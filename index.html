@@ -442,14 +442,14 @@ footer a { color: var(--accent); }
     norm. That lets a small group stand out — Uzbekistan-born Bukharians light up Forest Hills —
     while a very large one, like Dominican New Yorkers, registers only where it is genuinely
     concentrated, not everywhere it is merely numerous. Note what this measures: distinctiveness,
-    not size — and the comparison base is the foreign-born population, so in neighborhoods with few
-    immigrants overall, whoever is present looms large in a small pool. That is equally how Little
+    not size — a group at just 1–2% of a neighborhood's residents can be its signature when that is
+    many times the group's citywide share. That is equally how Little
     Sri Lanka registers on Staten Island and how British or Australian expats register in
     brownstone Brooklyn; the map reports both and lets you judge. Signature picks
     require at least 400 people and a usable margin of error; when a runner-up falls inside the
     winner's margin, the map declares a statistical tie rather than picking one. All “× citywide”
-    figures on this map — including the enclave pins — compare a group's share of the
-    <i>foreign-born</i> population here against its share citywide. The thresholds (400 people,
+    figures on this map — including the enclave pins — compare shares of <i>all residents</i>:
+    “10×” means roughly “2% of this neighborhood was born there, vs 0.2% of the city.” The thresholds (400 people,
     3×, CV ≤ 40%) are fixed judgment calls set before looking at results, not parameters tuned to
     the data. The “few missing enclaves” pins are examples, not an exhaustive sweep. The “Former
     USSR” group is approximate: the census gives no separate line for Estonia, Turkmenistan,
@@ -542,41 +542,41 @@ const PINS = [
   [40.7596, -73.8303, 2, 'Chinatown in Flushing', '39,361 China-born nearby · 44% of residents', 'Overwhelmingly supported — the city’s largest Chinese concentration.'],
   [40.7180, -74.0000, 2, 'Chinatown in Manhattan', '14,590 China-born · 38% of residents', 'Strongly supported.'],
   [40.6350, -74.0110, 2, 'Chinatown in Sunset Park', '24,957 China-born · 34% of residents', 'Strongly supported — 8th Ave corridor.'],
-  [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · 1.3× citywide', 'Weak — reads broadly Caribbean; the largest Guyana-born concentration is Richmond Hill.'],
+  [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · 1.1× citywide', 'Weak — reads broadly Caribbean; the largest Guyana-born concentration is Richmond Hill.'],
   [40.7496, -73.9877, 0, 'Koreatown in Manhattan', 'only 893 Korea-born residents nearby', 'A commercial district more than a residential one — the largest Korea-born concentrations are in Flushing, Murray Hill and Bayside.'],
-  [40.7610, -73.8330, 2, 'Koreatown in Queens', '7,501 Korea-born · 5.7× citywide', 'Strongly supported (with Murray Hill–Bayside).'],
-  [40.6214, -74.0713, 1, 'Little Africa, Staten Island', '487 Liberia-born · 33× citywide', 'Small but hyper-concentrated — Park Hill’s famous Liberian community; noisy estimates.'],
+  [40.7610, -73.8330, 2, 'Koreatown in Queens', '7,501 Korea-born · 10× citywide', 'Strongly supported (with Murray Hill–Bayside).'],
+  [40.6214, -74.0713, 1, 'Little Africa, Staten Island', '487 Liberia-born · 31× citywide', 'Small but hyper-concentrated — Park Hill’s famous Liberian community; noisy estimates.'],
   [40.8336, -73.9186, 1, 'Little Africa, the Bronx', '5,892 West Africa-born · 6% of residents', 'Supported — Ghana strongest; Gambians/Malians hidden in census rollups.'],
-  [40.8621, -73.9013, 0, 'Little Albania (Fordham)', '106 Albania-born · a third of the citywide rate', 'Legacy label — the largest Albania-born concentrations today are Bensonhurst, Ridgewood and the east Bronx.'],
-  [40.7105, -73.7935, 2, 'Little Bangladesh (Jamaica)', '14,481 Bangladesh-born · 7.8× citywide', 'Strongly supported.'],
-  [40.7528, -73.9068, 1, 'Little Bhod-Tibet (Woodside)', '2,357 Nepal-born · 6.9× citywide', 'Real Himalayan hub — but Tibet-born people are coded as “China”, so undercounted by design.'],
+  [40.8621, -73.9013, 0, 'Little Albania (Fordham)', '106 Albania-born · well below the citywide rate', 'Legacy label — the largest Albania-born concentrations today are Bensonhurst, Ridgewood and the east Bronx.'],
+  [40.7105, -73.7935, 2, 'Little Bangladesh (Jamaica)', '14,481 Bangladesh-born · 12× citywide', 'Strongly supported.'],
+  [40.7528, -73.9068, 1, 'Little Bhod-Tibet (Woodside)', '2,357 Nepal-born · 11× citywide', 'Real Himalayan hub — but Tibet-born people are coded as “China”, so undercounted by design.'],
   [40.6509, -73.9493, 2, 'Little Caribbean (Flatbush)', '27,109 Caribbean-born · 24% of residents', 'Strongly supported — Haiti, Jamaica, Trinidad together.'],
-  [40.7480, -73.8945, 2, 'Little Colombia (Jackson Hts)', '9,705 Colombia-born · 4.9× citywide', 'Strongly supported.'],
+  [40.7480, -73.8945, 2, 'Little Colombia (Jackson Hts)', '9,705 Colombia-born · 8.1× citywide', 'Strongly supported.'],
   [40.8474, -73.9397, 2, 'Little Dominican Republic', '41,083 DR-born · 27% of residents', 'One of the two largest single-country counts in the city — statistically tied with Flushing.'],
-  [40.7492, -73.8696, 2, 'Little Ecuador (Corona)', '17,664 Ecuador-born · 6.7× citywide', 'Strongly supported.'],
-  [40.7645, -73.9186, 1, 'Little Egypt (Steinway)', '1,252 Egypt-born · 5.6× citywide', 'Supported but modest residentially; the strip is the commercial hub.'],
+  [40.7492, -73.8696, 2, 'Little Ecuador (Corona)', '17,664 Ecuador-born · 11× citywide', 'Strongly supported.'],
+  [40.7645, -73.9186, 1, 'Little Egypt (Steinway)', '1,252 Egypt-born · 5.2× citywide', 'Supported but modest residentially; the strip is the commercial hub.'],
   [40.6857, -73.8258, 2, 'Little Guyana (Richmond Hill)', '9,658 Guyana-born · 12% of residents', 'Strongly supported.'],
-  [40.8983, -73.8544, 1, 'Little Guyana, the Bronx', '4,688 Guyana-born · 2.3× citywide', 'Moderate — Wakefield reads more Jamaican than Guyanese.'],
-  [40.6350, -73.9481, 2, 'Little Haiti (Newkirk Ave)', '7,871 Haiti-born · 6.6× citywide', 'Strongly supported.'],
-  [40.7455, -73.8880, 1, 'Little India (Jackson Hts)', '3,279 India-born · 2.4× citywide', 'The 74th St strip is real; residentially now more Bangladeshi/Nepali/Tibetan.'],
-  [40.7442, -73.8975, 1, 'Little Manila (Woodside)', '4,659 Philippines-born · 3.0× citywide', 'Supported.'],
+  [40.8983, -73.8544, 1, 'Little Guyana, the Bronx', '4,688 Guyana-born · 2.4× citywide', 'Moderate — Wakefield reads more Jamaican than Guyanese.'],
+  [40.6350, -73.9481, 2, 'Little Haiti (Newkirk Ave)', '7,871 Haiti-born · 7.6× citywide', 'Strongly supported.'],
+  [40.7455, -73.8880, 1, 'Little India (Jackson Hts)', '3,279 India-born · 3.9× citywide', 'The 74th St strip is real; residentially now more Bangladeshi/Nepali/Tibetan.'],
+  [40.7442, -73.8975, 1, 'Little Manila (Woodside)', '4,659 Philippines-born · 5.0× citywide', 'Supported.'],
   [40.6339, -74.1244, 1, 'Little Mexico, Port Richmond', '1,962 Mexico-born · 9% of residents', 'Supported.'],
   [40.6520, -74.0050, 1, 'Little Mexico, Sunset Park', '4,946 Mexico-born · 10% of residents', 'Supported — west of the Chinese 8th Ave corridor.'],
-  [40.5776, -73.9614, 2, 'Little Odessa (Brighton Beach)', '9,379 ex-USSR-born · 32% of residents', 'Highest concentration on the whole list (Ukraine 11× citywide).'],
+  [40.5776, -73.9614, 2, 'Little Odessa (Brighton Beach)', '9,379 ex-USSR-born · 32% of residents', 'Highest concentration on the whole list (Ukraine 21× citywide).'],
   [40.6290, -74.0260, 1, 'Little Palestine (Bay Ridge)', '9,609 Arab ancestry · 11% of residents', 'NYC’s Arab capital — but the census has no “Palestine” birth code, so Palestinians are structurally undercounted.'],
-  [40.6350, -73.9625, 1, 'Little Pakistan (Coney Island Ave)', '4,023 Pakistan-born · 6.8× citywide', 'Supported.'],
-  [40.7304, -73.9542, 2, 'Little Poland (Greenpoint)', '3,490 Poland-born · 27× citywide', 'Strongly supported.'],
-  [40.8030, -73.9520, 1, 'Little Senegal (116th St)', '747 Senegal-born · 17× citywide', 'Real but small and shrinking with Harlem gentrification.'],
+  [40.6350, -73.9625, 1, 'Little Pakistan (Coney Island Ave)', '4,023 Pakistan-born · 7.3× citywide', 'Supported.'],
+  [40.7304, -73.9542, 2, 'Little Poland (Greenpoint)', '3,490 Poland-born · 20× citywide', 'Strongly supported.'],
+  [40.8030, -73.9520, 1, 'Little Senegal (116th St)', '747 Senegal-born · 12× citywide', 'Real but small and shrinking with Harlem gentrification.'],
   [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · well below the citywide rate', 'Cultural landmark more than a residential enclave today — the largest Ukraine-born concentrations are in southern Brooklyn.'],
-  [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 7.1× citywide', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
+  [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 6.6× citywide', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
   // tier 3 = data-spotted: enclaves the census supports that the Passport list missed
   [40.6338, -74.0803, 3, 'Little Sri Lanka (Tompkinsville)', '~2,000 Sri Lanka-born across the North Shore', 'The Victory Blvd commercial heart sits where the census estimate is pure noise (113±160); the residential concentrations that clear this map’s bar are two neighborhoods west — Westerleigh and Mariner’s Harbor, both signature-level.'],
-  [40.7410, -73.8800, 3, 'Little Thailand (Elmhurst)', '1,633 Thai-born · 12× the citywide level', 'A quarter of all Thai-born New Yorkers live in Elmhurst alone.'],
-  [40.7380, -73.8830, 3, 'Little Indonesia (Elmhurst)', '1,542 Indonesia-born · 14× the citywide level', 'The city’s strongest Indonesian concentration, behind the Whitney Ave food row.'],
+  [40.7410, -73.8800, 3, 'Little Thailand (Elmhurst)', '1,633 Thai-born · 22× the citywide level', 'A quarter of all Thai-born New Yorkers live in Elmhurst alone.'],
+  [40.7380, -73.8830, 3, 'Little Indonesia (Elmhurst)', '1,542 Indonesia-born · 25× the citywide level', 'The city’s strongest Indonesian concentration, behind the Whitney Ave food row.'],
   [40.7285, -73.8500, 3, 'Bukharian Broadway (108th St)', '2,943 Uzbekistan-born in Forest Hills, more in Rego Park', 'The center of Bukharian Jewish New York — the census can only see “born in Uzbekistan”.'],
   [40.6050, -73.9560, 3, 'Georgian Gravesend–Homecrest', '1,126 Georgia-born here; thousands more nearby', 'Southern Brooklyn’s ex-Soviet belt is as Georgian, Uzbek and Kazakh as it is Russian or Ukrainian.'],
   [40.8512, -73.8502, 3, 'Albanian Morris Park–Allerton', '~1,850 Albania-born across four adjacent east Bronx neighborhoods', ''],
-  [40.7752, -73.9130, 3, 'Little Greece (Ditmars–Astoria)', '2,275 Greece-born · 25× citywide', 'The original Greek Astoria remains the city’s strongest Greek concentration — absent from the official list.'],
+  [40.7752, -73.9130, 3, 'Little Greece (Ditmars–Astoria)', '2,275 Greece-born · 22× citywide', 'The original Greek Astoria remains the city’s strongest Greek concentration.'],
 ];
 // Passport enclaves: color-coded dots. Missing enclaves: teardrop markers, tip on the spot.
 const PIN_PATH = 'M0 0C-1.6-6.2-8.5-9-8.5-16.2a8.5 8.5 0 1 1 17 0C8.5-9 1.6-6.2 0 0Z';
@@ -602,8 +602,8 @@ const state = { mode: 'dom', thresh: 5, sel: 'c' + DATA.countries.indexOf('China
 
 const cv = (e, m) => e > 0 ? (m / 1.645) / e * 100 : 999;
 const relInfo = c => c <= 12 ? ['●', 'reliable'] : c <= 40 ? ['◐', 'use with caution'] : ['○', 'unreliable'];
-let FBCITY = 0;
-for (const v of Object.values(NTAS)) FBCITY += v.f;
+let FBCITY = 0, CITYPOP = 0;
+for (const v of Object.values(NTAS)) { FBCITY += v.f; CITYPOP += v.p; }
 
 // ---- signature communities: for each neighborhood, the group most concentrated here
 // relative to its citywide share (location quotient). LQ >= 3, estimate >= 400, CV <= 40. ----
@@ -621,8 +621,8 @@ for (const [id, v] of Object.entries(NTAS)) {
     const c = DATA.countries[+idx];
     const [e, m] = em;
     if (e < 400 || cv(e, m) > 40) continue;
-    const cityRate = DATA.totals[c] / FBCITY;
-    const lq = (e / v.f) / cityRate;
+    const cityRate = DATA.totals[c] / CITYPOP;   // resident base: share of everyone here vs citywide
+    const lq = (e / v.p) / cityRate;
     if (lq >= 3) quals.push({ c, ci: +idx, lq, e, m });
   }
   if (!quals.length) continue;
@@ -1244,10 +1244,10 @@ function renderDetail(hoverId) {
     const lqs = [];
     for (const [idx, em] of Object.entries(v.v)) {
       const c = DATA.countries[+idx];
-      const cityRate = DATA.totals[c] / FBCITY;
+      const cityRate = DATA.totals[c] / CITYPOP;
       // identical gates to the map's SIG pick — the panel's first row must BE the map's signature
       if (em[0] >= 400 && cityRate > 0 && cv(em[0], em[1]) <= 40) {
-        const lq = (em[0] / v.f) / cityRate;
+        const lq = (em[0] / v.p) / cityRate;
         if (lq >= 3) lqs.push([c, em[0], lq]);
       }
     }
@@ -1324,9 +1324,9 @@ function showTip(ev, id) {
       for (const [idx, em] of Object.entries(v.v)) {
         const c = DATA.countries[+idx];
         if (shown.has(c)) continue;
-        const cityRate = DATA.totals[c] / FBCITY;
+        const cityRate = DATA.totals[c] / CITYPOP;
         if (em[0] >= 1000 && cityRate > 0 && cv(em[0], em[1]) <= 40) {
-          const lq = (em[0] / v.f) / cityRate;
+          const lq = (em[0] / v.p) / cityRate;
           if (lq >= 5) extras.push([c, em[0], lq]);
         }
       }

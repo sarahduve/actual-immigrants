@@ -542,12 +542,12 @@ const PINS = [
   [40.7596, -73.8303, 2, 'Chinatown in Flushing', '39,361 China-born nearby · 44% of residents', 'Overwhelmingly supported — the city’s largest Chinese concentration.'],
   [40.7180, -74.0000, 2, 'Chinatown in Manhattan', '14,590 China-born · 38% of residents', 'Strongly supported.'],
   [40.6350, -74.0110, 2, 'Chinatown in Sunset Park', '24,957 China-born · 34% of residents', 'Strongly supported — 8th Ave corridor.'],
-  [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · 1.3× citywide', 'Weak — reads broadly Caribbean; the Guyanese center is Richmond Hill.'],
-  [40.7496, -73.9877, 0, 'Koreatown in Manhattan', 'only 893 Korea-born residents nearby', 'Commercial district, not a residential enclave — Koreans live in Flushing/Bayside.'],
+  [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · 1.3× citywide', 'Weak — reads broadly Caribbean; the largest Guyana-born concentration is Richmond Hill.'],
+  [40.7496, -73.9877, 0, 'Koreatown in Manhattan', 'only 893 Korea-born residents nearby', 'A commercial district more than a residential one — the largest Korea-born concentrations are in Flushing, Murray Hill and Bayside.'],
   [40.7610, -73.8330, 2, 'Koreatown in Queens', '7,501 Korea-born · 5.7× citywide', 'Strongly supported (with Murray Hill–Bayside).'],
   [40.6214, -74.0713, 1, 'Little Africa, Staten Island', '487 Liberia-born · 33× citywide', 'Small but hyper-concentrated — Park Hill’s famous Liberian community; noisy estimates.'],
   [40.8336, -73.9186, 1, 'Little Africa, the Bronx', '5,892 West Africa-born · 6% of residents', 'Supported — Ghana strongest; Gambians/Malians hidden in census rollups.'],
-  [40.8621, -73.9013, 0, 'Little Albania (Fordham)', '106 Albania-born · a third of the citywide rate', 'Legacy label — Albanian NYC is now Bensonhurst, Ridgewood, and the east Bronx.'],
+  [40.8621, -73.9013, 0, 'Little Albania (Fordham)', '106 Albania-born · a third of the citywide rate', 'Legacy label — the largest Albania-born concentrations today are Bensonhurst, Ridgewood and the east Bronx.'],
   [40.7105, -73.7935, 2, 'Little Bangladesh (Jamaica)', '14,481 Bangladesh-born · 7.8× citywide', 'Strongly supported.'],
   [40.7528, -73.9068, 1, 'Little Bhod-Tibet (Woodside)', '2,357 Nepal-born · 6.9× citywide', 'Real Himalayan hub — but Tibet-born people are coded as “China”, so undercounted by design.'],
   [40.6509, -73.9493, 2, 'Little Caribbean (Flatbush)', '27,109 Caribbean-born · 24% of residents', 'Strongly supported — Haiti, Jamaica, Trinidad together.'],
@@ -567,7 +567,7 @@ const PINS = [
   [40.6350, -73.9625, 1, 'Little Pakistan (Coney Island Ave)', '4,023 Pakistan-born · 6.8× citywide', 'Supported.'],
   [40.7304, -73.9542, 2, 'Little Poland (Greenpoint)', '3,490 Poland-born · 27× citywide', 'Strongly supported.'],
   [40.8030, -73.9520, 1, 'Little Senegal (116th St)', '747 Senegal-born · 17× citywide', 'Real but small and shrinking with Harlem gentrification.'],
-  [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · well below the citywide rate', 'Cultural landmark, not a residential enclave — Ukrainian NYC is southern Brooklyn.'],
+  [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · well below the citywide rate', 'Cultural landmark more than a residential enclave today — the largest Ukraine-born concentrations are in southern Brooklyn.'],
   [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 7.1× citywide', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
   // tier 3 = data-spotted: enclaves the census supports that the Passport list missed
   [40.6338, -74.0803, 3, 'Little Sri Lanka (Tompkinsville)', '~2,000 Sri Lanka-born across the North Shore', 'The Victory Blvd commercial heart sits where the census estimate is pure noise (113±160); the residential concentrations that clear this map’s bar are two neighborhoods west — Westerleigh and Mariner’s Harbor, both signature-level.'],
@@ -1056,8 +1056,8 @@ function applyView() {
     g.setAttribute('transform', `translate(${g.dataset.x} ${g.dataset.y}) scale(${(1.4 * k).toFixed(3)})`);
   });
   svg.querySelectorAll('#pins circle.pin').forEach(c => {
-    c.setAttribute('r', (5.5 * k).toFixed(2));
-    c.setAttribute('stroke-width', (1.4 * k).toFixed(2));
+    c.setAttribute('r', (7.5 * k).toFixed(2));
+    c.setAttribute('stroke-width', (1.7 * k).toFixed(2));
   });
   }   // end zoom-level-changed sweep
   document.getElementById('zin').disabled = view.w <= W / MAXZOOM + 0.01;

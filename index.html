@@ -601,6 +601,38 @@ for (const [id, v] of Object.entries(NTAS)) {
 }
 const lqFmt = lq => (lq >= 10 ? Math.round(lq) : lq.toFixed(1)) + '×';
 
+// each signature country gets a consistent lightness step within its region's hue,
+// so the label names the country and the shade keeps same-country areas visually together
+const SHADE = {};
+{
+  const byGroup = {};
+  for (const s of Object.values(SIG)) {
+    const gi = DATA.cgroup[s.ci];
+    if (gi < 8) (byGroup[gi] ??= new Set()).add(s.c);
+  }
+  for (const g of Object.keys(byGroup)) {
+    const list = [...byGroup[g]].sort((a, b) => (DATA.totals[b] || 0) - (DATA.totals[a] || 0));
+    const n = list.length;
+    list.forEach((c, i) => { SHADE[c] = n === 1 ? 0.05 : -0.16 + 0.48 * i / (n - 1); });
+  }
+}
+function shadeHex(hex, t) {
+  const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  const mix = ch => t >= 0 ? Math.round(ch + (255 - ch) * t) : Math.round(ch * (1 + t));
+  return `rgb(${mix(r)},${mix(g)},${mix(b)})`;
+}
+function paintSigFills() {
+  const cs = getComputedStyle(document.documentElement);
+  const base = Array.from({ length: 8 }, (_, i) => cs.getPropertyValue('--c' + i).trim());
+  for (const id of Object.keys(NTAS)) {
+    const el = document.getElementById('p-' + id);
+    if (!el) continue;
+    const s = state.mode === 'sig' ? SIG[id] : null;
+    if (s && DATA.cgroup[s.ci] < 8) el.style.fill = shadeHex(base[DATA.cgroup[s.ci]], SHADE[s.c] ?? 0);
+    else el.style.fill = '';
+  }
+}
+
 // adaptive class breaks for single-country mode (quantiles of nonzero shares)
 let BINS = [0.5, 1, 2, 5, 10, 20];
 function fmtPct(x) { return x >= 10 ? Math.round(x) + '%' : x >= 1 ? x.toFixed(1) + '%' : x.toFixed(2) + '%'; }
@@ -680,6 +712,7 @@ function paint() {
   card.classList.toggle('mosaic', state.mode === 'mos');
   if (state.mode === 'mix') { ensureTracts(); requestAnimationFrame(drawDots); }
   if (state.mode === 'sig') renderSigLabels();
+  paintSigFills();
   if (state.mode === 'dom') renderDomLabels();
   if (state.mode === 'mos') ensureTracts();
   renderLegend();
@@ -949,7 +982,7 @@ function drawDots() {
     ctx.drawImage(sprites[ci], sx - R, sy - R);
   }
 }
-function themeRefresh() { drawDots(); paintMosaic(); }
+function themeRefresh() { drawDots(); paintMosaic(); paintSigFills(); }
 window.addEventListener('resize', drawDots);
 matchMedia('(prefers-color-scheme: dark)').addEventListener('change', themeRefresh);
 new MutationObserver(themeRefresh).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
@@ -1076,7 +1109,7 @@ function renderLegend() {
     }
     let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">The community most
       concentrated in each neighborhood <i>relative to its citywide share</i> — at least 3× and 400+
-      people. Zoom in for names.</div>`;
+      people. Hue = world region; each country keeps its own shade, and the names are on the map.</div>`;
     GROUPS.forEach((gname, i) => {
       const k = 'c' + i, n = counts[k] || 0;
       if (!n) return;

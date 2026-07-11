@@ -2,7 +2,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta property="og:title" content="Actual Immigrants — NYC by Country of Birth">
-<meta property="og:description" content="Where 3.1 million foreign-born New Yorkers actually live, by country of birth. ACS 2019–2023.">
+<meta property="og:description" content="Where do actual immigrants actually live? 3.1 million foreign-born New Yorkers, by home country. ACS 2019–2023.">
 <title>Actual Immigrants — NYC by Country of Birth</title>
 <style>
 :root {
@@ -301,7 +301,7 @@ footer a { color: var(--accent); }
     <div class="ds">— Cambridge Dictionary</div>
   </div>
   <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods (197 residential)</p>
-  <h1>NYC neighborhoods by country of birth</h1>
+  <h1>Where do actual immigrants actually live?</h1>
   <p class="sub">Several ways to read the same census data. <b>Top birthplace</b> colors each
   neighborhood by the country where the most of its foreign-born residents were born.
   <b>Signature</b> asks a different question — not who is biggest here, but who is unusually
@@ -361,7 +361,7 @@ footer a { color: var(--accent); }
   </div>
   <div class="rail">
     <div class="panel">
-      <h2 id="legendtitle">Largest foreign-born community</h2>
+      <h2 id="legendtitle">Who leads where</h2>
       <div class="legend" id="legend"></div>
     </div>
     <div class="panel detail" id="detail"></div>
@@ -436,7 +436,7 @@ footer a { color: var(--accent); }
   </details>
   <details>
     <summary>What does “signature group” mean?</summary>
-    <p>The birthplace most <i>over-represented</i> in a neighborhood relative to its share of the
+    <p>The home country most <i>over-represented</i> in a neighborhood relative to its share of the
     whole city — a location quotient, the same math search engines use to find the words that
     distinguish a document. 3× means a group is three times as concentrated there as its citywide
     norm. That lets a small group stand out — Uzbekistan-born Bukharians light up Forest Hills —
@@ -1166,7 +1166,7 @@ function renderLegend() {
       const c = classify(v, id);
       counts[c] = (counts[c] || 0) + 1;
     }
-    let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">The birthplace most
+    let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">The home country most
       <i>over-represented</i> in each neighborhood — who is unusually likely to live here, not who is
       most numerous. At least 3× the citywide rate and 400+ people. Hue = world region; each country
       keeps its own shade, and the names are on the map.</div>`;
@@ -1181,13 +1181,13 @@ function renderLegend() {
         <span class="sw" style="background:var(--other-fill)"></span>Canada, Australia &amp; Oceania<span class="n">${counts.other}</span></button>`;
     }
     html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--dim-fill)"></span>
-      <span style="color:var(--ink-2)">No standout community</span><span class="n">${counts.dim || 0}</span></div>`;
+      <span style="color:var(--ink-2)">No standout home country</span><span class="n">${counts.dim || 0}</span></div>`;
     lg.innerHTML = html;
     lg.querySelectorAll('button.chip').forEach(b => b.addEventListener('click', () => {
       state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
     }));
   } else if (state.mode === 'mix') {
-    title.textContent = 'Every community at once';
+    title.textContent = 'Every origin at once';
     let html = '';
     GROUPS.forEach((g, i) => {
       html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--c${GSLOT[i]})"></span>${g}</div>`;
@@ -1334,7 +1334,7 @@ function showTip(ev, id) {
         body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${lqFmt(lq)}</span></div>`;
       body += '<div class="tr"><span style="color:var(--muted);font-size:11.5px">× = concentration vs the citywide rate</span></div>';
     } else {
-      body += '<div class="tr"><span style="color:var(--muted)">No standout community here — click for the full profile</span></div>';
+      body += '<div class="tr"><span style="color:var(--muted)">No standout home country here — click for the full profile</span></div>';
     }
   } else {
     const rows4 = countryRows(v, 4);

@@ -1120,6 +1120,10 @@ function renderLegend() {
       html += `<button class="chip${state.focus === k ? ' sel' : ''}" data-f="${k}">
         <span class="sw" style="background:var(--${k})"></span>${gname}<span class="n">${n}</span></button>`;
     });
+    if (counts.other) {
+      html += `<button class="chip${state.focus === 'other' ? ' sel' : ''}" data-f="other">
+        <span class="sw" style="background:var(--other-fill)"></span>Canada, Australia &amp; Oceania<span class="n">${counts.other}</span></button>`;
+    }
     html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--dim-fill)"></span>
       <span style="color:var(--ink-2)">No standout community</span><span class="n">${counts.dim || 0}</span></div>`;
     lg.innerHTML = html;
@@ -1184,7 +1188,8 @@ function renderDetail(hoverId) {
     for (const [idx, em] of Object.entries(v.v)) {
       const c = DATA.countries[+idx];
       const cityRate = DATA.totals[c] / FBCITY;
-      if (em[0] >= 300 && cityRate > 0 && cv(em[0], em[1]) <= 60) {
+      // identical gates to the map's SIG pick — the panel's first row must BE the map's signature
+      if (em[0] >= 400 && cityRate > 0 && cv(em[0], em[1]) <= 40) {
         const lq = (em[0] / v.f) / cityRate;
         if (lq >= 3) lqs.push([c, em[0], lq]);
       }
@@ -1245,11 +1250,29 @@ function showTip(ev, id) {
     const [sym, lbl] = relInfo(cv(oneEst(v), oneMoe(v)));
     body = `<div class="tr"><span>Born in ${cname}</span><span class="tv"><b>${fmt(oneEst(v))}</b> · ${oneShare(v).toFixed(1)}%</span></div>
       <div class="tr"><span>Estimate</span><span class="tv">±${fmt(oneMoe(v))} ${sym} ${lbl}</span></div>`;
-  } else {
-    if (state.mode === 'sig' && SIG[id]) {
-      const s = SIG[id];
-      body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${lqFmt(s.lq)}</b> citywide</span></div>`;
+  } else if (state.mode === 'sig') {
+    // signature only — mixing in the top-birthplaces list made everything read as signature
+    const s = SIG[id];
+    if (s) {
+      body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${fmt(s.e)}</b> · ${lqFmt(s.lq)} citywide</span></div>`;
+      // extra signatures only when unmistakable: 1,000+ people AND 5x+ citywide
+      const extras = [];
+      for (const [idx, em] of Object.entries(v.v)) {
+        const c = DATA.countries[+idx];
+        if (c === s.c) continue;
+        const cityRate = DATA.totals[c] / FBCITY;
+        if (em[0] >= 1000 && cityRate > 0 && cv(em[0], em[1]) <= 40) {
+          const lq = (em[0] / v.f) / cityRate;
+          if (lq >= 5) extras.push([c, em[0], lq]);
+        }
+      }
+      extras.sort((a, b) => b[2] - a[2]);
+      for (const [c, e, lq] of extras.slice(0, 2))
+        body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${lqFmt(lq)} citywide</span></div>`;
+    } else {
+      body += '<div class="tr"><span style="color:var(--muted)">No standout community here — click for the full profile</span></div>';
     }
+  } else {
     for (const [c, e] of countryRows(v, 4))
       body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${(e / denom * 100).toFixed(1)}%</span></div>`;
   }

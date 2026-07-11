@@ -140,8 +140,13 @@ circle.pin0 { fill: #d03b3b; }
 .pin3 path { fill: var(--ink); stroke: var(--surface); stroke-width: 1.2; }
 .pin3 .hole { fill: var(--surface); stroke: none; }
 #siglabels, #domlabels { display: none; pointer-events: none; }
-.mapcard.sig svg.z2 #siglabels { display: block; }
+.mapcard.sig #siglabels { display: block; }          /* names are the point of this view */
 .mapcard.dom svg.z2 #domlabels { display: block; }
+#siglabels .lbl2 { display: none; }                  /* smaller enclaves' names appear on zoom */
+svg.z2 #siglabels .lbl2 { display: inline; }
+.mapcard.sig .nta { fill-opacity: 0.5; }             /* tint recedes; type carries the view */
+.mapcard.sig svg.focusmode .nta { fill-opacity: 0.12; }
+.mapcard.sig svg.focusmode .nta.focused { fill-opacity: 0.75; }
 .siglabel {
   fill: var(--ink); font-weight: 600; text-anchor: middle;
   paint-order: stroke; stroke: var(--surface);
@@ -783,7 +788,7 @@ function renderDomLabels() {
     if (v.t !== '0' || !v.d || !SHAPES[id]) continue;
     const b = SHAPES[id].bbox;
     const short = v.d.replace('Dominican Republic', 'Dominican Rep.').replace('Trinidad and Tobago', 'Trinidad');
-    parts.push(`<text class="siglabel" x="${((b[0] + b[2]) / 2).toFixed(0)}" y="${((b[1] + b[3]) / 2).toFixed(0)}">${short}</text>`);
+    parts.push(`<text class="siglabel" data-fs="9" x="${((b[0] + b[2]) / 2).toFixed(0)}" y="${((b[1] + b[3]) / 2).toFixed(0)}">${short}</text>`);
   }
   document.getElementById('domlabels').innerHTML = parts.join('');
   applyView();
@@ -794,12 +799,28 @@ function renderSigLabels() {
   if (sigLabelsBuilt) return;
   sigLabelsBuilt = true;
   const g = document.getElementById('siglabels');
+  // strongest concentrations get names at base zoom, sized by how intense they are;
+  // the rest appear at 2x zoom
+  const byLq = Object.entries(SIG).sort((a, b) => b[1].lq - a[1].lq);
+  const alwaysOn = new Set(byLq.slice(0, 45).map(([id]) => id));
+  // greedy declutter: in LQ order, a label prints at base zoom only if it doesn't collide
+  // with one already placed (adjacent NTAs often share a signature); losers appear on zoom
+  const placedBoxes = [];
   const parts = [];
-  for (const [id, s] of Object.entries(SIG)) {
+  for (const [id, s] of byLq) {
     const b = SHAPES[id] && SHAPES[id].bbox;
     if (!b) continue;
     const short = s.c.replace('Dominican Republic', 'Dominican Rep.').replace('Trinidad and Tobago', 'Trinidad');
-    parts.push(`<text class="siglabel" x="${((b[0] + b[2]) / 2).toFixed(0)}" y="${((b[1] + b[3]) / 2).toFixed(0)}">${short}</text>`);
+    const fs = 8.5 + Math.min(4.5, s.lq / 3);
+    const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
+    const w = short.length * fs * 0.58, h = fs * 1.3;
+    let base = alwaysOn.has(id);
+    if (base && placedBoxes.some(p => Math.abs(p.cx - cx) < (p.w + w) / 2 + 3 && Math.abs(p.cy - cy) < (p.h + h) / 2 + 2)) {
+      base = false;
+    }
+    if (base) placedBoxes.push({ cx, cy, w, h });
+    parts.push(`<text class="siglabel${base ? '' : ' lbl2'}" data-fs="${fs.toFixed(1)}"
+      x="${cx.toFixed(0)}" y="${cy.toFixed(0)}">${short}</text>`);
   }
   g.innerHTML = parts.join('');
   applyView();   // size the new labels for the current zoom
@@ -944,8 +965,9 @@ function applyView() {
   if (z3) ensureStreets();
   const k = view.w / W;
   svg.querySelectorAll('.siglabel').forEach(t => {
-    t.setAttribute('font-size', (7 * k).toFixed(2));
-    t.style.strokeWidth = (1.6 * k).toFixed(3);   // inline style so the CSS rule can't re-inflate it
+    const base = parseFloat(t.dataset.fs || '9');
+    t.setAttribute('font-size', (base * k).toFixed(2));
+    t.style.strokeWidth = (1.8 * k).toFixed(3);   // inline style so the CSS rule can't re-inflate it
   });
   svg.querySelectorAll('#pins g.pin').forEach(g => {
     g.setAttribute('transform', `translate(${g.dataset.x} ${g.dataset.y}) scale(${(1.4 * k).toFixed(3)})`);

@@ -37,12 +37,11 @@ def merge_by_name(pairs, min_len, tol):
         u = unary_union(gs)
         merged = linemerge(u) if u.geom_type == 'MultiLineString' else u
         geoms = list(merged.geoms) if merged.geom_type == 'MultiLineString' else [merged]
-        disp = name.split('|', 1)[1]
         for g in geoms:
             if g.length < min_len:
                 continue
             g = g.simplify(tol)
-            paths.append([disp, [[round(x, 5), round(y, 5)] for x, y in g.coords]])
+            paths.append([[round(x, 5), round(y, 5)] for x, y in g.coords])
     return paths
 
 out = {}

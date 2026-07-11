@@ -34,10 +34,12 @@ labels = {k[len('B05006_'):-1]: v['label'].replace('Estimate!!Total:!!', '')
 lname = lambda l: l.split('!!')[-1]
 MERGE = {'United Kingdom, excluding England and Scotland': 'United Kingdom',
          'England': 'United Kingdom', 'Scotland': 'United Kingdom',
-         'China, excluding Hong Kong and Taiwan': 'China'}
+         'China, excluding Hong Kong and Taiwan': 'China',
+         'Azores Islands': 'Portugal'}
 disp = lambda l: MERGE.get(lname(l), lname(l))
 def is_other(nm):
-    return nm.startswith('Other ') or 'n.e.c.' in nm or nm == 'Born at sea'
+    return (nm.startswith('Other ') or 'n.e.c.' in nm or nm == 'Born at sea'
+            or nm == 'West Indies')
 leaves = {n: l for n, l in labels.items() if not l.endswith(':')}
 leaf_country = {n: disp(l) for n, l in leaves.items()}
 

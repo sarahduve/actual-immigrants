@@ -119,7 +119,7 @@ select {
 .mapcard.mix #dots { display: block; }
 .mapcard.mix { --road: var(--grid); }
 .mapcard.mix .nta { fill: #000; fill-opacity: 0; stroke: var(--grid); pointer-events: all; }
-.mapcard.mix .nta.park { fill: var(--park-fill); fill-opacity: 1; }
+.mapcard.mix .nta.park { fill: var(--park-fill); fill-opacity: 1; pointer-events: none; }
 .mapcard.mix .nta:hover, .mapcard.mix .nta.pinned { stroke: var(--ink); }
 .nta { stroke: var(--surface); stroke-width: 0.7; cursor: pointer; vector-effect: non-scaling-stroke; }
 #roads path { fill: none; stroke: var(--road); vector-effect: non-scaling-stroke; pointer-events: none; }
@@ -295,7 +295,7 @@ footer a { color: var(--accent); }
     <div class="dd">a person who has come to a different country in order to live there permanently</div>
     <div class="ds">— Cambridge Dictionary</div>
   </div>
-  <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods</p>
+  <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods (197 residential)</p>
   <h1>NYC neighborhoods by country of birth</h1>
   <p class="sub">Several ways to read the same census data. <b>Top birthplace</b> colors each
   neighborhood by the country where the most of its foreign-born residents were born.
@@ -303,8 +303,8 @@ footer a { color: var(--accent); }
   concentrated here compared to the rest of the city. That's the view that finds Little Thailand
   in Elmhurst and the Bukharian corridor in Forest Hills: groups too small to top any
   neighborhood's list, but unmistakably rooted in one place. <b>Dots</b> draws every immigrant
-  population as one dot per 250 people, exactly where they live, and <b>by country</b> traces any
-  of 125 birthplaces or 18 regions.</p>
+  population as one dot per 250 people, placed at random within their census tract, and <b>by country</b> traces any
+  of 123 birthplaces or 19 regions.</p>
   <div class="statrow" id="statrow"></div>
 </header>
 
@@ -324,7 +324,7 @@ footer a { color: var(--accent); }
     <select id="countrysel"></select>
   </div>
   <div class="ctl" id="ctl-thresh">
-    <label for="thresh">Significance threshold</label>
+    <label for="thresh">Prominence threshold</label>
     <input type="range" id="thresh" min="1" max="30" step="1" value="5">
     <span class="threshval" id="threshval">≥ 5% of all residents</span>
   </div>
@@ -402,10 +402,14 @@ footer a { color: var(--accent); }
   <details>
     <summary>How reliable are the numbers?</summary>
     <p>They are survey estimates with sampling error. Margins of error were combined across tracts
-    (root sum of squares); estimates flagged “use with caution” have a coefficient of variation of
-    12–40%, and “unreliable” above 40%. England, Scotland and the rest of the UK are combined;
-    “China” excludes Hong Kong and Taiwan, which are tabulated separately. Parks, airports and
-    cemeteries are left uncolored.</p>
+    (root sum of squares, which ignores tract covariance — the same simplification the city's own
+    reports use); estimates flagged “use with caution” have a coefficient of variation of 12–40%,
+    and “unreliable” above 40%. Reliability flags describe the counts; derived ratios like “×
+    citywide” carry additional uncertainty of their own, which is why multiples on shakier
+    estimates are shown as “≈”. England, Scotland and the rest of the UK are combined; “China”
+    excludes Hong Kong and Taiwan, which are tabulated separately; “Korea” is North and South
+    tabulated together. The census's residual write-in lines (“West Indies”, “Other …”) are counted
+    in totals but never treated as countries. Parks, airports and cemeteries are left uncolored.</p>
   </details>
   <details>
     <summary>Why does the city's own report say Chinese immigrants are now the largest group?</summary>
@@ -433,7 +437,14 @@ footer a { color: var(--accent); }
     citywide norm. That lets a small group stand out — Uzbekistan-born Bukharians light up Forest
     Hills — while a very large one, like Dominican New Yorkers, registers only in the neighborhoods
     where it is genuinely concentrated, not everywhere it is merely numerous. Signature picks
-    require at least 400 people and a usable margin of error.</p>
+    require at least 400 people and a usable margin of error; when a runner-up falls inside the
+    winner's margin, the map declares a statistical tie rather than picking one. All “× citywide”
+    figures on this map — including the enclave pins — compare a group's share of the
+    <i>foreign-born</i> population here against its share citywide. The thresholds (400 people,
+    3×, CV ≤ 40%) are fixed judgment calls set before looking at results, not parameters tuned to
+    the data. The “few missing enclaves” pins are examples, not an exhaustive sweep. The “Former
+    USSR” group is approximate: the census gives no separate line for Estonia, Turkmenistan,
+    Kyrgyzstan or Tajikistan.</p>
   </details>
 </footer>
 </div>
@@ -508,7 +519,7 @@ for (const g of obj.geometries) {
 const ROADS = JSON.parse(document.getElementById('roadsdata').textContent);
 frag.push('<g id="roads" aria-hidden="true">');
 for (const [k, cls] of [['l', 'road-l'], ['s', 'road-s'], ['p', 'road-p']])
-  for (const [name, line] of ROADS[k])
+  for (const line of ROADS[k])
     frag.push(`<path class="${cls}" d="M${line.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L')}"/>`);
 frag.push('</g>');
 // highlight layer: hovered/pinned outlines are re-drawn here, above every fill, because a
@@ -522,40 +533,40 @@ const PINS = [
   [40.7596, -73.8303, 2, 'Chinatown in Flushing', '39,361 China-born nearby · 44% of residents', 'Overwhelmingly supported — the city’s largest Chinese concentration.'],
   [40.7180, -74.0000, 2, 'Chinatown in Manhattan', '14,590 China-born · 38% of residents', 'Strongly supported.'],
   [40.6350, -74.0110, 2, 'Chinatown in Sunset Park', '24,957 China-born · 34% of residents', 'Strongly supported — 8th Ave corridor.'],
-  [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · barely above the citywide rate', 'Weak — reads broadly Caribbean; the Guyanese center is Richmond Hill.'],
+  [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · 1.3× citywide', 'Weak — reads broadly Caribbean; the Guyanese center is Richmond Hill.'],
   [40.7496, -73.9877, 0, 'Koreatown in Manhattan', 'only 893 Korea-born residents nearby', 'Commercial district, not a residential enclave — Koreans live in Flushing/Bayside.'],
-  [40.7610, -73.8330, 2, 'Koreatown in Queens', '7,501 Korea-born · 10.5× citywide rate', 'Strongly supported (with Murray Hill–Bayside).'],
-  [40.6214, -74.0713, 1, 'Little Africa, Staten Island', '487 Liberia-born · 31× citywide rate', 'Small but hyper-concentrated — Park Hill’s famous Liberian community; noisy estimates.'],
+  [40.7610, -73.8330, 2, 'Koreatown in Queens', '7,501 Korea-born · 5.7× citywide', 'Strongly supported (with Murray Hill–Bayside).'],
+  [40.6214, -74.0713, 1, 'Little Africa, Staten Island', '487 Liberia-born · 33× citywide', 'Small but hyper-concentrated — Park Hill’s famous Liberian community; noisy estimates.'],
   [40.8336, -73.9186, 1, 'Little Africa, the Bronx', '5,892 West Africa-born · 6% of residents', 'Supported — Ghana strongest; Gambians/Malians hidden in census rollups.'],
-  [40.8621, -73.9013, 0, 'Little Albania (Fordham)', '106 Albania-born · below citywide rate', 'Legacy label — Albanian NYC is now Bensonhurst, Ridgewood, and the east Bronx.'],
-  [40.7105, -73.7935, 2, 'Little Bangladesh (Jamaica)', '14,481 Bangladesh-born · 12× citywide rate', 'Strongly supported.'],
-  [40.7528, -73.9068, 1, 'Little Bhod-Tibet (Woodside)', '2,357 Nepal-born · 11× citywide rate', 'Real Himalayan hub — but Tibet-born people are coded as “China”, so undercounted by design.'],
+  [40.8621, -73.9013, 0, 'Little Albania (Fordham)', '106 Albania-born · a third of the citywide rate', 'Legacy label — Albanian NYC is now Bensonhurst, Ridgewood, and the east Bronx.'],
+  [40.7105, -73.7935, 2, 'Little Bangladesh (Jamaica)', '14,481 Bangladesh-born · 7.8× citywide', 'Strongly supported.'],
+  [40.7528, -73.9068, 1, 'Little Bhod-Tibet (Woodside)', '2,357 Nepal-born · 6.9× citywide', 'Real Himalayan hub — but Tibet-born people are coded as “China”, so undercounted by design.'],
   [40.6509, -73.9493, 2, 'Little Caribbean (Flatbush)', '27,109 Caribbean-born · 24% of residents', 'Strongly supported — Haiti, Jamaica, Trinidad together.'],
-  [40.7480, -73.8945, 2, 'Little Colombia (Jackson Hts)', '9,705 Colombia-born · 8× citywide rate', 'Strongly supported.'],
-  [40.8474, -73.9397, 2, 'Little Dominican Republic', '41,083 DR-born · 27% of residents', 'The single largest enclave count in the city.'],
-  [40.7492, -73.8696, 2, 'Little Ecuador (Corona)', '17,664 Ecuador-born · 11× citywide rate', 'Strongly supported.'],
-  [40.7645, -73.9186, 1, 'Little Egypt (Steinway)', '1,252 Egypt-born · 5× citywide rate', 'Supported but modest residentially; the strip is the commercial hub.'],
+  [40.7480, -73.8945, 2, 'Little Colombia (Jackson Hts)', '9,705 Colombia-born · 4.9× citywide', 'Strongly supported.'],
+  [40.8474, -73.9397, 2, 'Little Dominican Republic', '41,083 DR-born · 27% of residents', 'One of the two largest single-country counts in the city — statistically tied with Flushing.'],
+  [40.7492, -73.8696, 2, 'Little Ecuador (Corona)', '17,664 Ecuador-born · 6.7× citywide', 'Strongly supported.'],
+  [40.7645, -73.9186, 1, 'Little Egypt (Steinway)', '1,252 Egypt-born · 5.6× citywide', 'Supported but modest residentially; the strip is the commercial hub.'],
   [40.6857, -73.8258, 2, 'Little Guyana (Richmond Hill)', '9,658 Guyana-born · 12% of residents', 'Strongly supported.'],
-  [40.8983, -73.8544, 1, 'Little Guyana, the Bronx', '4,688 Guyana-born · 2.4× citywide rate', 'Moderate — Wakefield reads more Jamaican than Guyanese.'],
-  [40.6350, -73.9481, 2, 'Little Haiti (Newkirk Ave)', '7,871 Haiti-born · 8× citywide rate', 'Strongly supported.'],
-  [40.7455, -73.8880, 1, 'Little India (Jackson Hts)', '3,279 India-born · 4× citywide rate', 'The 74th St strip is real; residentially now more Bangladeshi/Nepali/Tibetan.'],
-  [40.7442, -73.8975, 1, 'Little Manila (Woodside)', '4,659 Philippines-born · 5× citywide rate', 'Supported.'],
+  [40.8983, -73.8544, 1, 'Little Guyana, the Bronx', '4,688 Guyana-born · 2.3× citywide', 'Moderate — Wakefield reads more Jamaican than Guyanese.'],
+  [40.6350, -73.9481, 2, 'Little Haiti (Newkirk Ave)', '7,871 Haiti-born · 6.6× citywide', 'Strongly supported.'],
+  [40.7455, -73.8880, 1, 'Little India (Jackson Hts)', '3,279 India-born · 2.4× citywide', 'The 74th St strip is real; residentially now more Bangladeshi/Nepali/Tibetan.'],
+  [40.7442, -73.8975, 1, 'Little Manila (Woodside)', '4,659 Philippines-born · 3.0× citywide', 'Supported.'],
   [40.6339, -74.1244, 1, 'Little Mexico, Port Richmond', '1,962 Mexico-born · 9% of residents', 'Supported.'],
   [40.6520, -74.0050, 1, 'Little Mexico, Sunset Park', '4,946 Mexico-born · 10% of residents', 'Supported — west of the Chinese 8th Ave corridor.'],
-  [40.5776, -73.9614, 2, 'Little Odessa (Brighton Beach)', '9,379 ex-USSR-born · 32% of residents', 'Highest concentration on the whole list (Ukraine 21× citywide).'],
+  [40.5776, -73.9614, 2, 'Little Odessa (Brighton Beach)', '9,379 ex-USSR-born · 32% of residents', 'Highest concentration on the whole list (Ukraine 11× citywide).'],
   [40.6290, -74.0260, 1, 'Little Palestine (Bay Ridge)', '9,609 Arab ancestry · 11% of residents', 'NYC’s Arab capital — but the census has no “Palestine” birth code, so Palestinians are structurally undercounted.'],
-  [40.6350, -73.9625, 1, 'Little Pakistan (Coney Island Ave)', '4,023 Pakistan-born · 7× citywide rate', 'Supported.'],
-  [40.7304, -73.9542, 2, 'Little Poland (Greenpoint)', '3,490 Poland-born · 20× citywide rate', 'Strongly supported.'],
-  [40.8030, -73.9520, 1, 'Little Senegal (116th St)', '747 Senegal-born · 12× citywide rate', 'Real but small and shrinking with Harlem gentrification.'],
-  [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · half the citywide rate', 'Cultural landmark, not a residential enclave — Ukrainian NYC is southern Brooklyn.'],
-  [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 7× citywide rate', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
+  [40.6350, -73.9625, 1, 'Little Pakistan (Coney Island Ave)', '4,023 Pakistan-born · 6.8× citywide', 'Supported.'],
+  [40.7304, -73.9542, 2, 'Little Poland (Greenpoint)', '3,490 Poland-born · 27× citywide', 'Strongly supported.'],
+  [40.8030, -73.9520, 1, 'Little Senegal (116th St)', '747 Senegal-born · 17× citywide', 'Real but small and shrinking with Harlem gentrification.'],
+  [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · well below the citywide rate', 'Cultural landmark, not a residential enclave — Ukrainian NYC is southern Brooklyn.'],
+  [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 7.1× citywide', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
   // tier 3 = data-spotted: enclaves the census supports that the Passport list missed
-  [40.6338, -74.0803, 3, 'Little Sri Lanka (Tompkinsville)', '~2,000 Sri Lanka-born across the North Shore', 'The temples and restaurants cluster on Victory Blvd; the residents spread across a half-dozen small North Shore areas, each just under this map’s signature bar — exactly how a real community falls off official maps.'],
+  [40.6338, -74.0803, 3, 'Little Sri Lanka (Tompkinsville)', '~2,000 Sri Lanka-born across the North Shore', 'The Victory Blvd commercial heart sits where the census estimate is pure noise (113±160); the residential concentrations that clear this map’s bar are two neighborhoods west — Westerleigh and Mariner’s Harbor, both signature-level.'],
   [40.7410, -73.8800, 3, 'Little Thailand (Elmhurst)', '1,633 Thai-born · 12× the citywide level', 'A quarter of all Thai-born New Yorkers live in Elmhurst alone.'],
   [40.7380, -73.8830, 3, 'Little Indonesia (Elmhurst)', '1,542 Indonesia-born · 14× the citywide level', 'The city’s strongest Indonesian concentration, behind the Whitney Ave food row.'],
   [40.7285, -73.8500, 3, 'Bukharian Broadway (108th St)', '2,943 Uzbekistan-born in Forest Hills, more in Rego Park', 'The center of Bukharian Jewish New York — the census can only see “born in Uzbekistan”.'],
   [40.6050, -73.9560, 3, 'Georgian Gravesend–Homecrest', '1,126 Georgia-born here; thousands more nearby', 'Southern Brooklyn’s ex-Soviet belt is as Georgian, Uzbek and Kazakh as it is Russian or Ukrainian.'],
-  [40.8512, -73.8502, 3, 'Albanian Morris Park–Allerton', '~2,500 Albania-born across four adjacent east Bronx neighborhoods', ''],
+  [40.8512, -73.8502, 3, 'Albanian Morris Park–Allerton', '~1,850 Albania-born across four adjacent east Bronx neighborhoods', ''],
 ];
 // Passport enclaves: color-coded dots. Missing enclaves: teardrop markers, tip on the spot.
 const PIN_PATH = 'M0 0C-1.6-6.2-8.5-9-8.5-16.2a8.5 8.5 0 1 1 17 0C8.5-9 1.6-6.2 0 0Z';
@@ -595,17 +606,26 @@ const GROUPS = ['Caribbean', 'Latin America', 'East Asia', 'South & Central Asia
 const SIG = {};
 for (const [id, v] of Object.entries(NTAS)) {
   if (v.t !== '0' || !v.f) continue;
-  let best = null;
+  const quals = [];
   for (const [idx, em] of Object.entries(v.v)) {
     const c = DATA.countries[+idx];
     const [e, m] = em;
     if (e < 400 || cv(e, m) > 40) continue;
     const cityRate = DATA.totals[c] / FBCITY;
     const lq = (e / v.f) / cityRate;
-    if (lq >= 3 && (!best || lq > best.lq)) best = { c, ci: +idx, lq, e, m };
+    if (lq >= 3) quals.push({ c, ci: +idx, lq, e, m });
   }
-  if (best) SIG[id] = best;
+  if (!quals.length) continue;
+  quals.sort((a, b) => b.lq - a.lq);
+  const best = quals[0];
+  // a runner-up inside the winner's LQ 90% interval is a statistical tie, and we say so —
+  // a third of single winners don't survive resampling within their own margins of error
+  const rel = (best.m / 1.645) / best.e;
+  best.ties = quals.slice(1).filter(q => q.lq >= best.lq * (1 - rel)).slice(0, 2);
+  SIG[id] = best;
 }
+// display helper: exact multiple only when the estimate is tight; else an honest "≈"
+const lqShow = s => cv(s.e, s.m) <= 12 ? lqFmt(s.lq) : '≈' + Math.round(s.lq) + '×';
 const lqFmt = lq => (lq >= 10 ? Math.round(lq) : lq.toFixed(1)) + '×';
 
 // each signature country gets a consistent lightness step within its region's hue,
@@ -729,10 +749,10 @@ function paint() {
 }
 
 // ---- Mosaic: tract-level blended fills (repo build only — data/ fetched lazily) ----
-let TR = null, tractsLoading = false;
+let TR = null, tractsLoading = false, tractsTried = false;
 const TSHAPES = {};   // tract shapes in projected coords, for dot placement
 async function ensureTracts() {
-  if (TR || tractsLoading) return;
+  if (TR || tractsLoading || tractsTried) return;
   tractsLoading = true;
   try {
     const [tj, td] = await Promise.all([
@@ -775,8 +795,9 @@ async function ensureTracts() {
     document.getElementById('tracts').innerHTML = parts.join('');
     TR = td.tracts;
     paintMosaic();
-    if (state.mode === 'mix') { DOTS = null; drawDots(); renderLegend(); }   // regenerate dots at tract precision
-  } catch (e) { /* inline (artifact) build has no data/ folder */ }
+    DOTS = null;   // always invalidate — mode may have changed mid-fetch
+    if (state.mode === 'mix') { drawDots(); renderLegend(); }
+  } catch (e) { tractsTried = true; /* inline (artifact) build has no data/ folder */ }
   tractsLoading = false;
 }
 function regionRGB() {
@@ -832,6 +853,7 @@ function renderDomLabels() {
     parts.push(`<text class="siglabel" data-fs="9" x="${((b[0] + b[2]) / 2).toFixed(0)}" y="${((b[1] + b[3]) / 2).toFixed(0)}">${short}</text>`);
   }
   document.getElementById('domlabels').innerHTML = parts.join('');
+  applyView._lastW = null;
   applyView();
 }
 
@@ -851,7 +873,8 @@ function renderSigLabels() {
   for (const [id, s] of byLq) {
     const b = SHAPES[id] && SHAPES[id].bbox;
     if (!b) continue;
-    const short = s.c.replace('Dominican Republic', 'Dominican Rep.').replace('Trinidad and Tobago', 'Trinidad');
+    const sh = n => n.replace('Dominican Republic', 'Dominican Rep.').replace('Trinidad and Tobago', 'Trinidad');
+    const short = sh(s.c) + (s.ties && s.ties.length ? ' / ' + sh(s.ties[0].c) : '');
     const fs = 8.5 + Math.min(4.5, s.lq / 3);
     const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
     const w = short.length * fs * 0.58, h = fs * 1.3;
@@ -864,7 +887,8 @@ function renderSigLabels() {
       x="${cx.toFixed(0)}" y="${cy.toFixed(0)}">${short}</text>`);
   }
   g.innerHTML = parts.join('');
-  applyView();   // size the new labels for the current zoom
+  applyView._lastW = null;   // new labels need sizing even if zoom didn't change
+  applyView();
 }
 
 // ---- dot-density (mix mode) ----
@@ -896,7 +920,7 @@ const REG2GROUP = DATA.regions.map(n => {
   if (n.startsWith('South Central')) return 3;
   if (n.startsWith('South Eastern')) return 4;
   if (n.startsWith('Western Asia') || n.startsWith('Northern Africa')) return 5;
-  if (/^(Western|Eastern|Middle) Africa/.test(n)) return 6;
+  if (/^(Western|Eastern|Middle|Southern) Africa/.test(n)) return 6;
   if (/Europe/.test(n)) return 7;
   return -1;
 });
@@ -969,20 +993,25 @@ function drawDots() {
   // dots start bigger and grow gently with zoom so hue stays readable
   const rCss = Math.min(5.5, Math.max(1.8, 2.1 * w / W) * Math.pow(zoom, 0.45));
   const r = rCss * dpr;
-  const cols = seriesColors();
   const cs = getComputedStyle(document.documentElement);
   const ring = cs.getPropertyValue('--surface').trim();
-  // pre-render one sprite per color: fill + thin surface ring (the "gap" that separates touching dots)
   const R = Math.ceil(r + 1.2 * dpr);
-  const sprites = cols.map(c => {
-    const cv = document.createElement('canvas');
-    cv.width = cv.height = 2 * R;
-    const g = cv.getContext('2d');
-    g.beginPath(); g.arc(R, R, r, 0, 6.2832);
-    g.fillStyle = c; g.fill();
-    g.lineWidth = 0.8 * dpr; g.strokeStyle = ring; g.stroke();
-    return cv;
-  });
+  // sprites are cached — rebuilding 9 canvases on every pan frame janks phones
+  const spriteKey = r.toFixed(2) + '|' + dpr + '|' + ring;
+  if (drawDots._key !== spriteKey) {
+    const cols = seriesColors();
+    drawDots._sprites = cols.map(c => {
+      const cv = document.createElement('canvas');
+      cv.width = cv.height = 2 * R;
+      const g = cv.getContext('2d');
+      g.beginPath(); g.arc(R, R, r, 0, 6.2832);
+      g.fillStyle = c; g.fill();
+      g.lineWidth = 0.8 * dpr; g.strokeStyle = ring; g.stroke();
+      return cv;
+    });
+    drawDots._key = spriteKey;
+  }
+  const sprites = drawDots._sprites;
   const k = w * dpr / view.w;
   for (const [x, y, ci] of DOTS) {
     const sx = (x - view.x) * k, sy = (y - view.y) * k;
@@ -1000,11 +1029,15 @@ const view = { x: 0, y: 0, w: W, h: H };
 const MAXZOOM = 12;
 function applyView() {
   svg.setAttribute('viewBox', `${view.x} ${view.y} ${view.w} ${view.h}`);
+  // zoomed in: capture touch for panning; at full extent let the page scroll normally
+  svg.style.touchAction = view.w < W - 1 ? 'none' : 'pan-y';
   svg.classList.toggle('z2', view.w < W / 2.2);   // street grid + signature names
   const z3 = view.w < W / 3.4;                    // street names + full local grid
   svg.classList.toggle('z3', z3);
   if (z3) ensureStreets();
   const k = view.w / W;
+  if (applyView._lastW !== view.w) {   // pan-only frames skip the label/pin resize sweep
+  applyView._lastW = view.w;
   svg.querySelectorAll('.siglabel').forEach(t => {
     const base = parseFloat(t.dataset.fs || '9');
     t.setAttribute('font-size', (base * k).toFixed(2));
@@ -1017,6 +1050,7 @@ function applyView() {
     c.setAttribute('r', (5.5 * k).toFixed(2));
     c.setAttribute('stroke-width', (1.4 * k).toFixed(2));
   });
+  }   // end zoom-level-changed sweep
   document.getElementById('zin').disabled = view.w <= W / MAXZOOM + 0.01;
   document.getElementById('zout').disabled = view.w >= W - 0.01;
   if (state.mode === 'mix') drawDots();
@@ -1054,6 +1088,7 @@ svg.addEventListener('pointerdown', ev => {
   if (ev.button !== 0) return;
   pan = { x: ev.clientX, y: ev.clientY }; dragged = false;
 });
+let panRaf = 0;
 window.addEventListener('pointermove', ev => {
   if (!pan) return;
   const dx = ev.clientX - pan.x, dy = ev.clientY - pan.y;
@@ -1064,18 +1099,25 @@ window.addEventListener('pointermove', ev => {
   view.x -= dx / rect.width * view.w;
   view.y -= dy / rect.height * view.h;
   pan = { x: ev.clientX, y: ev.clientY };
-  clampView(); applyView();
+  clampView();
+  if (!panRaf) panRaf = requestAnimationFrame(() => { panRaf = 0; applyView(); });
 });
-window.addEventListener('pointerup', () => {
+function endPan() {
   pan = null; svg.classList.remove('panning');
   setTimeout(() => { dragged = false; }, 0);   // outlive this gesture's click, not the next one
-});
+}
+window.addEventListener('pointerup', endPan);
+window.addEventListener('pointercancel', endPan);   // touch scroll steals the gesture
 document.addEventListener('keydown', ev => {
   if (ev.key === 'Escape' && state.pinned) { state.pinned = null; paint(); }
 });
 function ntaAria(id, v) {
   if (v.t !== '0') return v.n + ' (non-residential)';
-  return `${v.n}, ${v.b}: largest foreign-born community ${v.d || 'none'}, ${fmt(v.de)} people`;
+  if (state.mode === 'sig') {
+    const s = SIG[id];
+    return `${v.n}, ${v.b}: ` + (s ? `signature group ${s.c}, ${fmt(s.e)} people` : 'no standout group');
+  }
+  return `${v.n}, ${v.b}: top birthplace ${v.d || 'none'}, ${fmt(v.de)} people`;
 }
 
 // ---- legend ----
@@ -1202,10 +1244,11 @@ function renderDetail(hoverId) {
     if (lqs.length) {
       html += `<div class="sigblock"><div class="sigtitle">Signature groups</div>
         <div class="sigsub">far more concentrated here than in the city overall</div>`;
+      const sigTie = new Set(SIG[id] && SIG[id].ties ? [SIG[id].c, ...SIG[id].ties.map(q => q.c)] : []);
       for (const [c, e, lq] of lqs.slice(0, 4)) {
         const gi = DATA.cgroup[DATA.countries.indexOf(c)];
         const col = gi < 8 ? `var(--c${GSLOT[gi]})` : 'var(--other-fill)';
-        html += `<div class="sigrow"><span class="k"><span class="sw" style="background:${col};display:inline-block;vertical-align:-2px;margin-right:6px"></span>${c}</span>
+        html += `<div class="sigrow"><span class="k"><span class="sw" style="background:${col};display:inline-block;vertical-align:-2px;margin-right:6px"></span>${c}${sigTie.has(c) ? ' <span class="flag">(tied)</span>' : ''}</span>
           <span class="v">${fmt(e)} · ${lqFmt(lq)} citywide</span></div>`;
       }
       html += '</div>';
@@ -1258,12 +1301,18 @@ function showTip(ev, id) {
     // signature only — mixing in the top-birthplaces list made everything read as signature
     const s = SIG[id];
     if (s) {
-      body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${fmt(s.e)}</b> · ${lqFmt(s.lq)} citywide</span></div>`;
+      const [sym, lbl] = relInfo(cv(s.e, s.m));
+      body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${fmt(s.e)}</b> ±${fmt(s.m)} ${sym} · ${lqShow(s)} citywide</span></div>`;
+      if (s.ties && s.ties.length) {
+        for (const q of s.ties)
+          body += `<div class="tr"><span style="color:var(--ink-2)">tied: ${q.c}</span><span class="tv">${fmt(q.e)} · ${lqShow(q)}</span></div>`;
+      }
       // extra signatures only when unmistakable: 1,000+ people AND 5x+ citywide
       const extras = [];
+      const shown = new Set([s.c, ...(s.ties || []).map(q => q.c)]);
       for (const [idx, em] of Object.entries(v.v)) {
         const c = DATA.countries[+idx];
-        if (c === s.c) continue;
+        if (shown.has(c)) continue;
         const cityRate = DATA.totals[c] / FBCITY;
         if (em[0] >= 1000 && cityRate > 0 && cv(em[0], em[1]) <= 40) {
           const lq = (em[0] / v.f) / cityRate;
@@ -1277,8 +1326,11 @@ function showTip(ev, id) {
       body += '<div class="tr"><span style="color:var(--muted)">No standout community here — click for the full profile</span></div>';
     }
   } else {
-    for (const [c, e] of countryRows(v, 4))
+    const rows4 = countryRows(v, 4);
+    for (const [c, e] of rows4)
       body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${(e / denom * 100).toFixed(1)}%</span></div>`;
+    if (rows4.length >= 2 && rows4[0][1] - rows4[0][2] < rows4[1][1] + rows4[1][2])
+      body += '<div class="tr"><span style="color:var(--muted)">top two are statistically tied</span></div>';
   }
   tip.innerHTML = `<div class="tn">${v.n}</div><div class="tb">${v.b} · ${fmt(v.p)} residents · ${(v.p ? v.f / v.p * 100 : 0).toFixed(0)}% foreign-born</div>` + body;
   tip.style.display = 'block';
@@ -1342,15 +1394,17 @@ svg.addEventListener('mousemove', ev => {
   const t = ev.target.closest('.nta');
   if (t) {
     const id = t.id.slice(2);
-    if (NTAS[id] && NTAS[id].t === '0') setHovNta(id);
-    showTip(ev, id);
-    if (!state.pinned) renderDetail(id);
+    const res = NTAS[id] && NTAS[id].t === '0';
+    if (res) setHovNta(id);
+    if (showTip._last === id + state.mode) { placeTip(ev); }   // same target: reposition only
+    else { showTip._last = id + state.mode; showTip(ev, id); if (!state.pinned && res) renderDetail(id); }
   }
-  else if (!ev.target.closest('#pins .pin')) { tip.style.display = 'none'; if (!state.pinned) renderDetail(); }
+  else if (!ev.target.closest('#pins .pin')) { showTip._last = null; tip.style.display = 'none'; if (!state.pinned) renderDetail(); }
 });
 svg.addEventListener('mouseleave', () => { setHovNta(null); tip.style.display = 'none'; if (!state.pinned) renderDetail(); });
 svg.addEventListener('click', ev => {
   if (dragged) return;   // pan gestures shouldn't pin
+  if (ev.detail > 1) return;   // double-click zooms; don't let its clicks toggle the pin
   const tp = ev.target.closest('#tracts path');
   if (tp && state.mode === 'mos' && TR) {
     const nta = TR[tp.dataset.t][5];

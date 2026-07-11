@@ -12,12 +12,16 @@ for k, v in meta.items():
 leaves = {n: l for n, l in labels.items() if not l.endswith(':')}
 MERGE = {'United Kingdom, excluding England and Scotland': 'United Kingdom',
          'England': 'United Kingdom', 'Scotland': 'United Kingdom',
-         'China, excluding Hong Kong and Taiwan': 'China'}
+         'China, excluding Hong Kong and Taiwan': 'China',
+         'Azores Islands': 'Portugal'}
 def disp(lab):
     n = lab.split('!!')[-1]
     return MERGE.get(n, n)
 def is_other(name):
-    return name.startswith('Other ') or 'n.e.c.' in name or name == 'Born at sea'
+    # 'West Indies' is B05006's residual Caribbean write-in, not a country — letting it
+    # compete labeled two Brooklyn neighborhoods with a colonial-era catch-all
+    return (name.startswith('Other ') or 'n.e.c.' in name or name == 'Born at sea'
+            or name == 'West Indies')
 leaf_country = {n: disp(l) for n, l in leaves.items()}
 
 def load_dat(path):
@@ -38,7 +42,8 @@ KIDS2 = ['008', '011', '018', '026', '029', '036']
 ROLLUPS = ['Caribbean', 'Central America', 'South America',
            'Eastern Asia', 'South Central Asia', 'South Eastern Asia', 'Western Asia',
            'Eastern Europe', 'Southern Europe', 'Western Europe', 'Northern Europe',
-           'Western Africa', 'Eastern Africa', 'Northern Africa', 'Middle Africa', 'Oceania']
+           'Western Africa', 'Eastern Africa', 'Northern Africa', 'Middle Africa',
+           'Southern Africa', 'Oceania']
 rollup_vars = {}
 for n, l in labels.items():
     if l.endswith(':') and disp(l.rstrip(':')) in ROLLUPS:
@@ -51,7 +56,8 @@ CUSTOM = {
 custom_vars = {g: [n for n, c in leaf_country.items() if c in members]
                for g, members in CUSTOM.items()}
 REGION_LABELS = {'Central America': 'Central America (incl. Mexico)',
-                 'Western Asia': 'Western Asia (Middle East)'}
+                 'Western Asia': 'Western Asia (Middle East)',
+                 'Former USSR': 'Former USSR (approx.)'}
 REGIONS = ROLLUPS + list(CUSTOM)
 def num(x):
     try:
@@ -128,7 +134,6 @@ for nta, a in agg.items():
         'dm': round(dom_moe),
         'v': vals,
         'rv': rvals,
-        'k': [round(a['k2_e']), round(math.sqrt(a['k2_m2'])), round(a['kt_e'])],
     }
 
 # world-group per country for the signature-mode coloring, derived from the label hierarchy

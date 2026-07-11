@@ -3,9 +3,11 @@
 An interactive map of NYC neighborhoods by country of birth.
 
 Interactive map of where foreign-born New Yorkers live, built from ACS 2019–2023 place-of-birth
-data. Six views: largest community, signature communities (location quotient), tract-level Mosaic
-(blended region colors), dot-density Mix, single origin/region explorer, and children of
-immigrants — plus the MOIA "official enclave" list audited against the data.
+data. Five views: top birthplace, signature groups (location quotient, with statistical ties
+declared when margins of error overlap), tract-level Mosaic (blended region colors), dot-density
+Dots, and a by-country/region explorer — plus the city's "Immigrant Enclaves" list audited
+against the data. Residual census write-in lines ("West Indies", "Other …") count toward totals
+but never compete as countries; all "× citywide" multiples use the foreign-born base.
 
 **Place of birth, not ancestry.** Unlike ancestry maps (e.g. the NYT's 2026 "American Mosaic"),
 this counts only people actually born abroad. Ancestry is an identity claim that persists across
@@ -38,7 +40,7 @@ artifact without them.
 
 | File | What |
 |---|---|
-| `index.html` | the map (data inlined at build time) |
+| `index.html` | the map for GitHub Pages (data inlined; doctype/viewport head prepended) |
 | `nyc-diaspora-map.template.html` | source template (`__DATA__` / `__ROADS__` placeholders) |
 | `build_mapdata.py` | tract→NTA aggregation → `map_data.json` (needs `openpyxl`) |
 | `build_roads.py` | TIGER major roads + names → `roads.json` (needs `pyshp`, `shapely`) |

@@ -287,13 +287,36 @@ footer a { color: var(--accent); }
 .faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .faq details p { margin: 0 2px 14px; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
 
+.dictmini { display: none; }
+.subviews { display: none; }
+#pins .pinhit { fill: transparent !important; stroke: none !important; }
+#pins g.pin .hit { fill: transparent; }
+@media (hover: hover) and (pointer: fine) {
+  #pins .pinhit { display: none !important; }
+  #pins g.pin .hit { display: none; }
+}
+@media (max-width: 1000px) {
+  .dictmini { display: block; font-size: 12.5px; color: var(--muted); margin: -2px 0 10px; }
+  .dictmini .dp, .dictmini i { font-style: italic; }
+  .dictmini i { color: var(--ink-2); }
+}
 @media (max-width: 900px) {
-  .main { grid-template-columns: 1fr; }
-  .rail { flex-direction: column; }
+  /* legend above the map, neighborhood detail below it */
+  .main { display: flex; flex-direction: column; gap: 14px; }
+  .rail { display: contents; }
+  #legendpanel { order: -1; }
+  .mapcard { order: 0; }
+  #detail { order: 1; }
 }
 @media (max-width: 640px) {
   .wrap { padding: 16px 12px 40px; }
   h1 { font-size: 21px; }
+  .subprose { display: none; }
+  .subviews { display: block; margin-top: 4px; }
+  .subviews details { border-top: 1px solid var(--grid); }
+  .subviews details:last-child { border-bottom: 1px solid var(--grid); }
+  .subviews summary { font-weight: 600; font-size: 13.5px; padding: 8px 0; cursor: pointer; }
+  .subviews p { margin: 0 0 10px; font-size: 13px; color: var(--ink-2); }
   .statrow { gap: 14px 24px; margin-top: 12px; }
   .stat .v { font-size: 19px; }
   .controls { padding: 12px; gap: 12px 20px; margin: 12px 0; }
@@ -326,14 +349,30 @@ footer a { color: var(--accent); }
   </div>
   <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods (197 residential)</p>
   <h1>Where do actual immigrants actually live?</h1>
-  <p class="sub">Several ways to read the same census data. <b>Top birthplace</b> colors each
+  <div class="dictmini" aria-hidden="true">im&#183;mi&#183;grant <span class="dp">/&#712;&#618;m.&#601;.&#609;r&#601;nt/ noun</span> ·
+    <i>a person who has come to a different country in order to live there permanently</i>
+    <span class="dsrc">— Cambridge Dictionary</span></div>
+  <p class="sub">Several ways to read the same census data.<span class="subprose"> <b>Top birthplace</b> colors each
   neighborhood by the country where the most of its foreign-born residents were born.
   <b>Signature</b> asks a different question — not who is biggest here, but who is unusually
   concentrated here compared to the rest of the city. That's the view that finds Little Thailand
   in Elmhurst and the Bukharian corridor in Forest Hills: groups too small to top any
   neighborhood's list, but unmistakably rooted in one place. <b>Dots</b> draws every immigrant
   population as one dot per 250 people, placed at random within their census tract, and <b>by country</b> traces any
-  of 123 birthplaces or 19 regions.</p>
+  of 123 birthplaces or 19 regions.</span></p>
+  <div class="subviews">
+    <details><summary>Top birthplace</summary><p>Colors each neighborhood by the country where
+      the most of its foreign-born residents were born.</p></details>
+    <details><summary>Signature</summary><p>Asks a different question — not who is biggest here,
+      but who is unusually concentrated here compared to the rest of the city. That's the view
+      that finds Little Thailand in Elmhurst and the Bukharian corridor in Forest Hills: groups
+      too small to top any neighborhood's list, but unmistakably rooted in one place.</p></details>
+    <details><summary>Mosaic</summary><p>Paints every census tract with the blend of its
+      immigrant residents' world regions — the closest view of block-scale mixing.</p></details>
+    <details><summary>Dots</summary><p>Draws every immigrant population as one dot per 250
+      people, placed at random within their census tract.</p></details>
+    <details><summary>By country</summary><p>Traces any of 123 birthplaces or 19 regions.</p></details>
+  </div>
   <div class="statrow" id="statrow"></div>
 </header>
 
@@ -384,7 +423,7 @@ footer a { color: var(--accent); }
     <svg id="map" role="img" aria-label="Choropleth map of New York City neighborhood tabulation areas"></svg>
   </div>
   <div class="rail">
-    <div class="panel">
+    <div class="panel" id="legendpanel">
       <h2 id="legendtitle">Who leads where</h2>
       <div class="legend" id="legend"></div>
     </div>
@@ -621,9 +660,11 @@ PINS.forEach((p, i) => {
   const x = px(p[1]).toFixed(1), y = py(p[0]).toFixed(1);
   if (p[2] === 3) {
     frag.push(`<g class="pin miss pin3" data-pin="${i}" data-x="${x}" data-y="${y}">
-      <path d="${PIN_PATH}"/><circle class="hole" cx="0" cy="-16.2" r="3.4"/></g>`);
+      <path d="${PIN_PATH}"/><circle class="hole" cx="0" cy="-16.2" r="3.4"/>
+      <circle class="hit" cx="0" cy="-14" r="14"/></g>`);
   } else {
-    frag.push(`<circle class="pin pass pin${p[2]}" data-pin="${i}" cx="${x}" cy="${y}" r="5"/>`);
+    frag.push(`<circle class="pin pass pin${p[2]}" data-pin="${i}" cx="${x}" cy="${y}" r="5"/>` +
+      `<circle class="pin pass pinhit" data-pin="${i}" cx="${x}" cy="${y}" r="12"/>`);
   }
 });
 frag.push('</g>');
@@ -922,8 +963,9 @@ function renderSigLabels() {
     const sh = n => n.replace('Dominican Republic', 'Dominican Rep.').replace('Trinidad and Tobago', 'Trinidad');
     const short = sh(s.c) + (s.ties && s.ties.length ? ' / ' + sh(s.ties[0].c) : '');
     const fs = 8.5 + Math.min(4.5, s.lq / 3);
+    const dk = Math.max(1, Math.min(2.6, 760 / (svg.clientWidth || 760)));
     const cx = (b[0] + b[2]) / 2, cy = (b[1] + b[3]) / 2;
-    const w = short.length * fs * 0.58, h = fs * 1.3;
+    const w = short.length * fs * dk * 0.58, h = fs * dk * 1.3;
     let base = alwaysOn.has(id);
     if (base && placedBoxes.some(p => Math.abs(p.cx - cx) < (p.w + w) / 2 + 3 && Math.abs(p.cy - cy) < (p.h + h) / 2 + 2)) {
       base = false;
@@ -1082,19 +1124,25 @@ function applyView() {
   svg.classList.toggle('z3', z3);
   if (z3) ensureStreets();
   const k = view.w / W;
+  // labels and pins are sized so they render at a constant SCREEN size; that constant is
+  // calibrated to a ~760px-wide map, so on a phone (map ~360px) boost by the ratio
+  const kk = k * Math.max(1, Math.min(2.6, 760 / (svg.clientWidth || 760)));
   if (applyView._lastW !== view.w) {   // pan-only frames skip the label/pin resize sweep
   applyView._lastW = view.w;
   svg.querySelectorAll('.siglabel').forEach(t => {
     const base = parseFloat(t.dataset.fs || '9');
-    t.setAttribute('font-size', (base * k).toFixed(2));
-    t.style.strokeWidth = (1.8 * k).toFixed(3);   // inline style so the CSS rule can't re-inflate it
+    t.setAttribute('font-size', (base * kk).toFixed(2));
+    t.style.strokeWidth = (1.8 * kk).toFixed(3);   // inline style so the CSS rule can't re-inflate it
   });
   svg.querySelectorAll('#pins g.pin').forEach(g => {
-    g.setAttribute('transform', `translate(${g.dataset.x} ${g.dataset.y}) scale(${(1.4 * k).toFixed(3)})`);
+    g.setAttribute('transform', `translate(${g.dataset.x} ${g.dataset.y}) scale(${(1.4 * kk).toFixed(3)})`);
   });
-  svg.querySelectorAll('#pins circle.pin').forEach(c => {
-    c.setAttribute('r', (7.5 * k).toFixed(2));
-    c.setAttribute('stroke-width', (1.7 * k).toFixed(2));
+  svg.querySelectorAll('#pins circle.pin:not(.pinhit)').forEach(c => {
+    c.setAttribute('r', (7.5 * kk).toFixed(2));
+    c.setAttribute('stroke-width', (1.7 * kk).toFixed(2));
+  });
+  svg.querySelectorAll('#pins circle.pinhit').forEach(c => {
+    c.setAttribute('r', (15 * kk).toFixed(2));
   });
   }   // end zoom-level-changed sweep
   document.getElementById('zin').disabled = view.w <= W / MAXZOOM + 0.01;
@@ -1190,6 +1238,16 @@ svg.addEventListener('pointerup', ev => {
   } else { lastTap = now; lastTapAt = [ev.clientX, ev.clientY]; }
 });
 svg.addEventListener('gesturestart', ev => ev.preventDefault());   // iOS page-zoom over the map
+let rsT = 0;
+window.addEventListener('resize', () => {
+  clearTimeout(rsT);
+  rsT = setTimeout(() => {
+    sigLabelsBuilt = domLabelsBuilt = false;
+    if (state.mode === 'sig') renderSigLabels();
+    if (state.mode === 'dom') renderDomLabels();
+    applyView._lastW = null; applyView();
+  }, 200);
+});
 if (matchMedia('(hover: none)').matches)
   document.getElementById('maphint').textContent = 'double-tap to zoom \u00b7 pinch or drag when zoomed';
 document.addEventListener('keydown', ev => {

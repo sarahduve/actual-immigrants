@@ -250,13 +250,13 @@ svg.focusmode .nta.focused { fill-opacity: 1; }
 #tooltip {
   position: fixed; z-index: 10; pointer-events: none; display: none;
   background: var(--surface); border: 1px solid var(--baseline); border-radius: 7px;
-  padding: 10px 12px; max-width: 290px; font-size: 12.5px;
+  padding: 10px 12px; max-width: 350px; font-size: 12.5px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.18);
 }
 #tooltip .tn { font-weight: 700; font-size: 13px; }
 #tooltip .tb { color: var(--muted); font-size: 11.5px; margin-bottom: 5px; }
 #tooltip .tr { display: flex; justify-content: space-between; gap: 14px; }
-#tooltip .tr .tv { font-variant-numeric: tabular-nums; color: var(--ink-2); }
+#tooltip .tr .tv { font-variant-numeric: tabular-nums; color: var(--ink-2); white-space: nowrap; }
 #tooltip .tr .tv b { color: var(--ink); }
 
 .tablewrap { margin-top: 18px; }
@@ -1307,7 +1307,7 @@ function showTip(ev, id) {
     const s = SIG[id];
     if (s) {
       const [sym, lbl] = relInfo(cv(s.e, s.m));
-      body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${fmt(s.e)}</b> ±${fmt(s.m)} ${sym} · ${lqShow(s)} citywide</span></div>`;
+      body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${fmt(s.e)}</b> ±${fmt(s.m)} ${sym} · ${lqShow(s)}</span></div>`;
       if (s.ties && s.ties.length) {
         for (const q of s.ties)
           body += `<div class="tr"><span style="color:var(--ink-2)">tied: ${q.c}</span><span class="tv">${fmt(q.e)} · ${lqShow(q)}</span></div>`;
@@ -1326,7 +1326,8 @@ function showTip(ev, id) {
       }
       extras.sort((a, b) => b[2] - a[2]);
       for (const [c, e, lq] of extras.slice(0, 2))
-        body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${lqFmt(lq)} citywide</span></div>`;
+        body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${lqFmt(lq)}</span></div>`;
+      body += '<div class="tr"><span style="color:var(--muted);font-size:11.5px">× = concentration vs the citywide rate</span></div>';
     } else {
       body += '<div class="tr"><span style="color:var(--muted)">No standout community here — click for the full profile</span></div>';
     }

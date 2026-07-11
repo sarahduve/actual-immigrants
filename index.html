@@ -289,6 +289,14 @@ footer a { color: var(--accent); }
 
 .dictmini { display: none; }
 .subviews { display: none; }
+.legdet summary { display: none; }
+@media (max-width: 640px) {
+  .legdet summary { display: block; list-style: none; font-size: 12.5px; font-weight: 600;
+    color: var(--ink-2); padding: 6px 0 2px; cursor: pointer; }
+  .legdet summary::-webkit-details-marker { display: none; }
+  .legdet summary::after { content: " \25be"; color: var(--muted); }
+  .legdet[open] summary::after { content: " \25b4"; }
+}
 #pins .pinhit { fill: transparent !important; stroke: none !important; }
 #pins g.pin .hit { fill: transparent; }
 @media (hover: hover) and (pointer: fine) {
@@ -302,7 +310,7 @@ footer a { color: var(--accent); }
 }
 @media (max-width: 900px) {
   /* legend above the map, neighborhood detail below it */
-  .main { display: flex; flex-direction: column; gap: 14px; }
+  .main { display: flex; flex-direction: column; gap: 14px; align-items: stretch; }
   .rail { display: contents; }
   #legendpanel { order: -1; }
   .mapcard { order: 0; }
@@ -311,12 +319,18 @@ footer a { color: var(--accent); }
 @media (max-width: 640px) {
   .wrap { padding: 16px 12px 40px; }
   h1 { font-size: 21px; }
+  .eyebrow { display: none; }   /* the sourcing line lives in the footer on phones */
   .subprose { display: none; }
-  .subviews { display: block; margin-top: 4px; }
-  .subviews details { border-top: 1px solid var(--grid); }
-  .subviews details:last-child { border-bottom: 1px solid var(--grid); }
-  .subviews summary { font-weight: 600; font-size: 13.5px; padding: 8px 0; cursor: pointer; }
-  .subviews p { margin: 0 0 10px; font-size: 13px; color: var(--ink-2); }
+  .subviews { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .subviews details[open] { flex: 1 1 100%; }
+  .subviews summary { list-style: none; display: inline-block; font-weight: 600; font-size: 12.5px;
+    padding: 4px 10px; border: 1px solid var(--baseline); border-radius: 14px; cursor: pointer;
+    color: var(--ink-2); background: var(--surface); }
+  .subviews summary::-webkit-details-marker { display: none; }
+  .subviews summary::after { content: " +"; color: var(--muted); }
+  .subviews details[open] summary { background: var(--ink); color: var(--page); border-color: var(--ink); }
+  .subviews details[open] summary::after { content: " −"; color: var(--page); }
+  .subviews p { margin: 6px 2px 4px; font-size: 13px; color: var(--ink-2); }
   .statrow { gap: 14px 24px; margin-top: 12px; }
   .stat .v { font-size: 19px; }
   .controls { padding: 12px; gap: 12px 20px; margin: 12px 0; }
@@ -324,8 +338,8 @@ footer a { color: var(--accent); }
   .controls > .ctl:first-child .seg { display: flex; }
   .controls > .ctl:first-child .seg button { flex: 1 1 auto; padding: 7px 2px; font-size: 12px; line-height: 1.2; }
   .ctl input[type=range] { width: min(150px, 44vw); }
-  .mapcard { padding: 6px; }
-  .zoomctl { top: 10px; left: 10px; }
+  .mapcard { margin: 0 -12px; padding: 4px; border-left: 0; border-right: 0; border-radius: 0; }
+  .zoomctl { top: 8px; left: 8px; }
   #tooltip { max-width: calc(100vw - 20px); }
   .panel { padding: 12px 13px; }
 }
@@ -1266,6 +1280,8 @@ function ntaAria(id, v) {
 function renderLegend() {
   const lg = document.getElementById('legend');
   const title = document.getElementById('legendtitle');
+  const prev = lg.querySelector('.legdet');
+  const legOpen = (innerWidth > 640 || (prev && prev.open)) ? ' open' : '';
   if (state.mode === 'dom') {
     title.innerHTML = 'Who leads where <span class="h2sub">· click to isolate</span>';
     const counts = {};
@@ -1278,6 +1294,7 @@ function renderLegend() {
     let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">Of 197 residential
       neighborhoods, how many each country leads as the largest immigrant group — counting only
       leads of at least <b>${state.thresh}%</b> of residents (the slider above).</div>`;
+    html += `<details class="legdet"${legOpen}><summary>Color key</summary>`;
     TOP8.forEach((c, i) => {
       const k = 'c' + i, n = counts[k] || 0;
       html += `<button class="chip${state.focus === k ? ' sel' : ''}" data-f="${k}">
@@ -1287,6 +1304,7 @@ function renderLegend() {
       <span class="sw" style="background:var(--other-fill)"></span>Another country leads<span class="n">${counts.other || 0}</span></button>`;
     html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--dim-fill)"></span>
       <span style="color:var(--ink-2)">Leader under ${state.thresh}%</span><span class="n">${counts.dim || 0}</span></div>`;
+    html += '</details>';
     lg.innerHTML = html;
     lg.querySelectorAll('button.chip').forEach(b => b.addEventListener('click', () => {
       state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
@@ -1303,6 +1321,7 @@ function renderLegend() {
       <i>over-represented</i> in each neighborhood — who is unusually likely to live here, not who is
       most numerous (nor necessarily a true “enclave”). At least 3× the citywide rate and 400+ people. Hue = world region; each country
       keeps its own shade, and the names are on the map.</div>`;
+    html += `<details class="legdet"${legOpen}><summary>Color key</summary>`;
     GROUPS.forEach((gname, i) => {
       const k = 'c' + GSLOT[i], n = counts[k] || 0;
       if (!n) return;
@@ -1315,17 +1334,19 @@ function renderLegend() {
     }
     html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--dim-fill)"></span>
       <span style="color:var(--ink-2)">No standout home country</span><span class="n">${counts.dim || 0}</span></div>`;
+    html += '</details>';
     lg.innerHTML = html;
     lg.querySelectorAll('button.chip').forEach(b => b.addEventListener('click', () => {
       state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
     }));
   } else if (state.mode === 'mix') {
     title.textContent = 'Every origin at once';
-    let html = '';
+    let html = `<details class="legdet"${legOpen}><summary>Color key</summary>`;
     GROUPS.forEach((g, i) => {
       html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--c${GSLOT[i]})"></span>${g}</div>`;
     });
     html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--other-fill)"></span>Elsewhere (Canada, Oceania…)</div>`;
+    html += '</details>';
     html += `<div class="hint">One dot ≈ ${fmt(DOT_PER)} foreign-born residents, colored by world region
       and placed at random within their ${TR ? 'census tract' : 'neighborhood'}. Mixed stippling means communities share the
       same blocks; hover for the country-level breakdown.</div>`;
@@ -1335,9 +1356,11 @@ function renderLegend() {
     let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">Each census tract is
       painted with the <i>blend</i> of its foreign-born residents' world regions — saturated where one
       region dominates, mixed hues where communities overlap. Paler tracts have fewer immigrants.</div>`;
+    html += `<details class="legdet"${legOpen}><summary>Color key</summary>`;
     GROUPS.forEach((g, i) => {
       html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--c${GSLOT[i]})"></span>${g}</div>`;
     });
+    html += '</details>';
     lg.innerHTML = html;
   } else {
     const cname = selName();

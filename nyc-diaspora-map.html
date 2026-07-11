@@ -64,7 +64,19 @@ body {
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 24px 48px; }
-header { margin-bottom: 18px; }
+header { margin-bottom: 18px; position: relative; }
+.dictbg {
+  position: absolute; top: 2px; right: 0; width: 44%;
+  font-family: Georgia, 'Iowan Old Style', 'Times New Roman', serif;
+  color: var(--ink); opacity: 0.075; pointer-events: none; user-select: none;
+  line-height: 1.18; z-index: 0;
+}
+.dictbg .dw { font-size: 54px; font-weight: 700; font-style: italic; letter-spacing: -0.01em; }
+.dictbg .dp { font-size: 26px; font-weight: 400; }
+.dictbg .dd { font-size: 27px; font-style: italic; margin-top: 2px; text-wrap: balance; }
+.dictbg .ds { font-size: 13px; margin-top: 8px; letter-spacing: 0.03em; }
+@media (max-width: 1000px) { .dictbg { display: none; } }
+header > *:not(.dictbg) { position: relative; z-index: 1; }
 .eyebrow {
   font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
   color: var(--muted); margin: 0 0 6px;
@@ -115,10 +127,11 @@ select {
 svg.z2 .road-l { display: inline; }
 .roadlabel {
   fill: var(--muted); display: none; letter-spacing: 0.04em;
-  paint-order: stroke; stroke: var(--surface); stroke-width: 2px;
+  paint-order: stroke; stroke: var(--surface); stroke-width: 1.4px;
 }
 svg.z3 .roadlabel { display: inline; }
 .mapcard.mix .roadlabel { stroke: var(--page); }
+.mapcard.sig .roadlabel { display: none; }   /* country names take priority in Signature view */
 .chklabel { font-size: 13px; display: inline-flex; align-items: center; gap: 6px;
   cursor: pointer; text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--ink); }
 .chklabel input { accent-color: var(--accent); }
@@ -255,6 +268,11 @@ footer a { color: var(--accent); }
 
 <div class="wrap">
 <header>
+  <div class="dictbg" aria-hidden="true">
+    <div class="dw">im&#712;migrant<span class="dp">, n.</span></div>
+    <div class="dd">A person that removes into a country for the purpose of permanent residence.</div>
+    <div class="ds">— Webster, An American Dictionary of the English Language, 1828</div>
+  </div>
   <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods</p>
   <h1>NYC neighborhoods by country of birth</h1>
   <p class="sub">Several ways to read the same census data. <b>Largest community</b> colors each
@@ -283,13 +301,6 @@ footer a { color: var(--accent); }
     <label for="countrysel">Country of birth</label>
     <select id="countrysel"></select>
   </div>
-  <div class="ctl" id="ctl-denom">
-    <label>Share measured against</label>
-    <span class="seg" role="group" aria-label="Denominator">
-      <button id="den-p" class="on">All residents</button>
-      <button id="den-f">Foreign-born only</button>
-    </span>
-  </div>
   <div class="ctl" id="ctl-thresh">
     <label for="thresh">Significance threshold</label>
     <input type="range" id="thresh" min="1" max="30" step="1" value="5">
@@ -297,7 +308,7 @@ footer a { color: var(--accent); }
   </div>
   <div class="ctl">
     <label for="pinchk">Overlay</label>
-    <label class="chklabel"><input type="checkbox" id="pinchk"> NYC's official enclave list</label>
+    <label class="chklabel"><input type="checkbox" id="pinchk"> NYC Neighborhood Passport's Immigrant Enclaves</label>
   </div>
 </div>
 
@@ -454,12 +465,19 @@ for (const [k, cls] of [['l', 'road-l'], ['s', 'road-s'], ['p', 'road-p']])
     let span = 0;
     for (let i = 1; i < line.length; i++) span += Math.hypot(line[i][0] - line[i-1][0], line[i][1] - line[i-1][1]);
     const minorName = (/\d/.test(name) && /St$/.test(name)) || /(Pl|Ct|Ter|Ln|Walk|Loop)$/.test(name);
-    if (name && span > 0.042 && !/^I- /.test(name) && !minorName) {
-      const pts = line[0][0] <= line[line.length - 1][0] ? line : [...line].reverse();
-      const dd = 'M' + pts.map(([lon, lat]) => px(lon).toFixed(1) + ' ' + py(lat).toFixed(1)).join('L');
-      labelCarriers.push(`<path id="rl${rid}" d="${dd}" style="fill:none;stroke:none"/>` +
-        `<text class="roadlabel"><textPath href="#rl${rid}" startOffset="35%">${name}</textPath></text>`);
-      rid++;
+    if (name && span > 0.05 && !/^I- /.test(name) && !minorName) {
+      // straight rotated label on the longest straight stretch — text-on-path piles
+      // glyphs up at the sharp vertices of simplified geometry
+      let bestLen = 0, bi = 1;
+      for (let i = 1; i < line.length; i++) {
+        const d0 = Math.hypot(line[i][0] - line[i-1][0], line[i][1] - line[i-1][1]);
+        if (d0 > bestLen) { bestLen = d0; bi = i; }
+      }
+      let ax = px(line[bi-1][0]), ay = py(line[bi-1][1]), bx = px(line[bi][0]), by = py(line[bi][1]);
+      if (bx < ax) { [ax, bx] = [bx, ax]; [ay, by] = [by, ay]; }   // keep text upright
+      const mx = (ax + bx) / 2, my = (ay + by) / 2;
+      const ang = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
+      labelCarriers.push(`<text class="roadlabel" text-anchor="middle" x="${mx.toFixed(1)}" y="${my.toFixed(1)}" dy="-1.5" transform="rotate(${ang.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})">${name}</text>`);
     }
   }
 frag.push(labelCarriers.join(''));
@@ -514,7 +532,9 @@ svg.insertAdjacentHTML('afterbegin', '<g id="tracts"></g>');
 
 // ---- state ----
 // sel encodes the explorer pick: 'c<idx>' = country, 'r<idx>' = region group
-const state = { mode: 'dom', den: 'p', thresh: 5, sel: 'c' + DATA.countries.indexOf('China'), pinned: null, focus: null };
+// all shares are measured against total residents (the foreign-born-only denominator
+// added more confusion than insight; the %-of-foreign-born figure lives in the table)
+const state = { mode: 'dom', thresh: 5, sel: 'c' + DATA.countries.indexOf('China'), pinned: null, focus: null };
 
 const cv = (e, m) => e > 0 ? (m / 1.645) / e * 100 : 999;
 const relInfo = c => c <= 12 ? ['●', 'reliable'] : c <= 40 ? ['◐', 'use with caution'] : ['○', 'unreliable'];
@@ -561,7 +581,7 @@ function computeBins() {
   BINS = out.length ? out : [q(0.5)];
 }
 
-function denomOf(v) { return state.den === 'p' ? v.p : v.f; }
+function denomOf(v) { return v.p; }
 function domShare(v) { const d = denomOf(v); return d > 0 ? v.de / d * 100 : 0; }
 function selEntry(v) {
   const idx = +state.sel.slice(1);
@@ -944,23 +964,26 @@ function renderLegend() {
   const lg = document.getElementById('legend');
   const title = document.getElementById('legendtitle');
   if (state.mode === 'dom') {
-    title.innerHTML = 'Largest foreign-born community <span class="h2sub">· click to isolate</span>';
+    title.innerHTML = 'Who leads where <span class="h2sub">· click to isolate</span>';
     const counts = {};
     for (const [id, v] of Object.entries(NTAS)) {
       if (v.t !== '0') continue;
       const c = classify(v, id);
       counts[c] = (counts[c] || 0) + 1;
     }
-    let html = '';
+    // explain what the numbers count, and that the slider changes them
+    let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">Of 197 residential
+      neighborhoods, how many each country leads as the largest immigrant group — counting only
+      leads of at least <b>${state.thresh}%</b> of residents (the slider above).</div>`;
     TOP8.forEach((c, i) => {
       const k = 'c' + i, n = counts[k] || 0;
       html += `<button class="chip${state.focus === k ? ' sel' : ''}" data-f="${k}">
         <span class="sw" style="background:var(--${k})"></span>${c}<span class="n">${n}</span></button>`;
     });
     html += `<button class="chip${state.focus === 'other' ? ' sel' : ''}" data-f="other">
-      <span class="sw" style="background:var(--other-fill)"></span>Another country<span class="n">${counts.other || 0}</span></button>`;
+      <span class="sw" style="background:var(--other-fill)"></span>Another country leads<span class="n">${counts.other || 0}</span></button>`;
     html += `<div class="chip" style="cursor:default"><span class="sw" style="background:var(--dim-fill)"></span>
-      <span style="color:var(--ink-2)">No community ≥ threshold</span><span class="n">${counts.dim || 0}</span></div>`;
+      <span style="color:var(--ink-2)">Leader under ${state.thresh}%</span><span class="n">${counts.dim || 0}</span></div>`;
     lg.innerHTML = html;
     lg.querySelectorAll('button.chip').forEach(b => b.addEventListener('click', () => {
       state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
@@ -1021,7 +1044,7 @@ function renderLegend() {
   } else {
     const cname = selName();
     title.textContent = `Residents born in ${cname}`;
-    const denomLbl = state.den === 'p' ? 'share of all residents' : 'share of foreign-born residents';
+    const denomLbl = 'share of all residents';
     const n = BINS.length + 1;
     let ramp = '<div class="ramprow">';
     for (let i = 1; i <= n; i++) ramp += `<span class="rs" style="background:var(--q${i})"></span>`;
@@ -1250,7 +1273,6 @@ document.getElementById('tabletoggle').addEventListener('click', function () {
 });
 
 // ---- controls ----
-function setSeg(onBtn, offBtn) { onBtn.classList.add('on'); offBtn.classList.remove('on'); }
 const MODEBTN = {
   dom: document.getElementById('mode-dom'), sig: document.getElementById('mode-sig'),
   mos: document.getElementById('mode-mos'), mix: document.getElementById('mode-mix'),
@@ -1261,7 +1283,6 @@ function setMode(mode) {
   for (const [m, b] of Object.entries(MODEBTN)) b.classList.toggle('on', m === mode);
   document.getElementById('ctl-country').style.display = mode === 'one' ? '' : 'none';
   document.getElementById('ctl-thresh').style.display = mode === 'dom' ? '' : 'none';
-  document.getElementById('ctl-denom').style.display = (mode === 'dom' || mode === 'one') ? '' : 'none';
   if (mode === 'one') computeBins();
   paint();
 }
@@ -1286,13 +1307,9 @@ svg.addEventListener('mousemove', ev => {
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 });
-const dP = document.getElementById('den-p'), dF = document.getElementById('den-f');
-dP.addEventListener('click', () => { state.den = 'p'; setSeg(dP, dF); updateThreshLabel(); if (state.mode === 'one') computeBins(); paint(); });
-dF.addEventListener('click', () => { state.den = 'f'; setSeg(dF, dP); updateThreshLabel(); if (state.mode === 'one') computeBins(); paint(); });
 const thresh = document.getElementById('thresh');
 function updateThreshLabel() {
-  document.getElementById('threshval').textContent =
-    `≥ ${state.thresh}% of ${state.den === 'p' ? 'all residents' : 'foreign-born residents'}`;
+  document.getElementById('threshval').textContent = `≥ ${state.thresh}% of all residents`;
 }
 thresh.addEventListener('input', () => { state.thresh = +thresh.value; updateThreshLabel(); paint(); });
 const sel = document.getElementById('countrysel');
@@ -1314,8 +1331,7 @@ sel.addEventListener('change', () => { state.sel = sel.value; computeBins(); pai
   const topC = DATA.countries[0];
   document.getElementById('statrow').innerHTML = `
     <div class="stat"><div class="v">${(fb / 1e6).toFixed(2)}M</div><div class="l">foreign-born New Yorkers</div></div>
-    <div class="stat"><div class="v">${(fb / pop * 100).toFixed(0)}%</div><div class="l">of all residents</div></div>
-    <div class="stat"><div class="v">${fmt(DATA.totals[topC])}</div><div class="l">born in ${topC}, the largest group</div></div>`;
+    <div class="stat"><div class="v">${(fb / pop * 100).toFixed(0)}%</div><div class="l">of all residents</div></div>`;
 })();
 
 paint();

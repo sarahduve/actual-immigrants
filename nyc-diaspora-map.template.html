@@ -243,7 +243,7 @@ svg.focusmode .nta.focused { fill-opacity: 1; }
 .hint { font-size: 12px; color: var(--muted); margin-top: 8px; }
 
 #tooltip {
-  position: fixed; z-index: 10; pointer-events: none; display: none;
+  position: absolute; z-index: 10; pointer-events: none; display: none;
   background: var(--surface); border: 1px solid var(--baseline); border-radius: 7px;
   padding: 12px 14px; max-width: 350px; font-size: 12.5px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.18);
@@ -282,7 +282,6 @@ footer a { color: var(--accent); }
 .faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .faq details p { margin: 0 2px 14px; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
 
-.dictmini { display: none; }
 .legdet summary { display: none; }
 @media (max-width: 640px) {
   .legdet summary { display: block; list-style: none; font-size: 12.5px; font-weight: 600;
@@ -296,11 +295,6 @@ footer a { color: var(--accent); }
 @media (hover: hover) and (pointer: fine) {
   #pins .pinhit { display: none !important; }
   #pins g.pin .hit { display: none; }
-}
-@media (max-width: 1000px) {
-  .dictmini { display: block; font-size: 12.5px; color: var(--muted); margin: -2px 0 10px; }
-  .dictmini .dp, .dictmini i { font-style: italic; }
-  .dictmini i { color: var(--ink-2); }
 }
 @media (max-width: 900px) {
   /* legend above the map, neighborhood detail below it */
@@ -349,9 +343,6 @@ footer a { color: var(--accent); }
   </div>
   <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods (197 residential)</p>
   <h1>Where do actual immigrants actually live?</h1>
-  <div class="dictmini" aria-hidden="true">im&#183;mi&#183;grant <span class="dp">/&#712;&#618;m.&#601;.&#609;r&#601;nt/ noun</span> ·
-    <i>a person who has come to a different country in order to live there permanently</i>
-    <span class="dsrc">— Cambridge Dictionary</span></div>
   <p class="sub">Several ways to read the same census data.<span class="subprose"> <b>Top birthplace</b> colors each
   neighborhood by the country where the most of its foreign-born residents were born.
   <b>Signature</b> asks a different question — not who is biggest here, but who is unusually
@@ -1493,7 +1484,7 @@ function showTip(ev, id) {
   if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
   x = Math.max(8, x); y = Math.max(8, y);
-  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  tip.style.left = (x + scrollX) + 'px'; tip.style.top = (y + scrollY) + 'px';
 }
 function placeTip(ev) {
   tip.style.display = 'block';
@@ -1502,7 +1493,7 @@ function placeTip(ev) {
   if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
   x = Math.max(8, x); y = Math.max(8, y);
-  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  tip.style.left = (x + scrollX) + 'px'; tip.style.top = (y + scrollY) + 'px';
 }
 let hovNta = null;
 function drawHl() {
@@ -1674,7 +1665,7 @@ svg.addEventListener('mousemove', ev => {
   if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - 10;
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
   x = Math.max(8, x); y = Math.max(8, y);
-  tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  tip.style.left = (x + scrollX) + 'px'; tip.style.top = (y + scrollY) + 'px';
 });
 const thresh = document.getElementById('thresh');
 function updateThreshLabel() {

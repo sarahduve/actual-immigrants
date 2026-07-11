@@ -145,9 +145,11 @@ svg.z2 .road-l { display: inline; }
      and swells into a blob when zoomed in */
 }
 #tracts { display: none; }
-#tracts path { stroke: none; }
+#tracts path { stroke: none; vector-effect: non-scaling-stroke; cursor: pointer; }
+#tracts path:hover { stroke: var(--ink); stroke-width: 0.8; }
 .mapcard.mosaic #tracts { display: block; }
 .mapcard.mosaic .nta { fill: #000; fill-opacity: 0; stroke: var(--baseline); stroke-width: 0.8; pointer-events: none; }
+.mapcard.mosaic .nta.hovnta { stroke: var(--ink); stroke-width: 1.6; }   /* preview: a click pins this neighborhood */
 .mapcard.mosaic .nta.park { fill: var(--park-fill); fill-opacity: 1; }
 .mapcard.mosaic { --road: var(--grid); }
 .road-x { stroke-width: 0.4; display: none; }
@@ -1197,10 +1199,18 @@ function placeTip(ev) {
   if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - 10;
   tip.style.left = x + 'px'; tip.style.top = y + 'px';
 }
+let hovNta = null;
+function setHovNta(id) {
+  if (hovNta === id) return;
+  if (hovNta) document.getElementById('p-' + hovNta)?.classList.remove('hovnta');
+  hovNta = id || null;
+  if (hovNta) document.getElementById('p-' + hovNta)?.classList.add('hovnta');
+}
 svg.addEventListener('mousemove', ev => {
   const tp = ev.target.closest('#tracts path');
   if (tp && state.mode === 'mos' && TR) {
     const t = TR[tp.dataset.t];
+    setHovNta(NTAS[t[5]] ? t[5] : null);
     const ntaName = NTAS[t[5]] ? `${NTAS[t[5]].n} · ` : '';
     const g8 = t.slice(6), tot = g8.reduce((a, b) => a + b, 0);
     let mixLine = '';
@@ -1218,11 +1228,12 @@ svg.addEventListener('mousemove', ev => {
     if (!state.pinned && NTAS[t[5]]) renderDetail(t[5]);
     return;
   }
+  setHovNta(null);
   const t = ev.target.closest('.nta');
   if (t) { const id = t.id.slice(2); showTip(ev, id); if (!state.pinned) renderDetail(id); }
   else if (!ev.target.closest('#pins circle')) { tip.style.display = 'none'; if (!state.pinned) renderDetail(); }
 });
-svg.addEventListener('mouseleave', () => { tip.style.display = 'none'; if (!state.pinned) renderDetail(); });
+svg.addEventListener('mouseleave', () => { setHovNta(null); tip.style.display = 'none'; if (!state.pinned) renderDetail(); });
 svg.addEventListener('click', ev => {
   if (dragged) return;   // pan gestures shouldn't pin
   const tp = ev.target.closest('#tracts path');

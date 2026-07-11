@@ -250,7 +250,7 @@ svg.focusmode .nta.focused { fill-opacity: 1; }
 #tooltip {
   position: fixed; z-index: 10; pointer-events: none; display: none;
   background: var(--surface); border: 1px solid var(--baseline); border-radius: 7px;
-  padding: 10px 12px; max-width: 350px; font-size: 12.5px;
+  padding: 12px 14px; max-width: 350px; font-size: 12.5px;
   box-shadow: 0 4px 14px rgba(0,0,0,0.18);
 }
 #tooltip .tn { font-weight: 700; font-size: 13px; }
@@ -1243,7 +1243,7 @@ function renderLegend() {
     }
     let html = `<div style="font-size:12.5px;color:var(--ink-2);margin-bottom:4px">The home country most
       <i>over-represented</i> in each neighborhood — who is unusually likely to live here, not who is
-      most numerous. At least 3× the citywide rate and 400+ people. Hue = world region; each country
+      most numerous (nor necessarily a true “enclave”). At least 3× the citywide rate and 400+ people. Hue = world region; each country
       keeps its own shade, and the names are on the map.</div>`;
     GROUPS.forEach((gname, i) => {
       const k = 'c' + GSLOT[i], n = counts[k] || 0;
@@ -1390,7 +1390,7 @@ function showTip(ev, id) {
       body += `<div class="tr" style="font-weight:600"><span>Signature: ${s.c}</span><span class="tv"><b>${fmt(s.e)}</b> ±${fmt(s.m)} ${sym} · ${lqShow(s)}</span></div>`;
       // the division behind the multiple, so a 1.5%-of-residents signature can't read as an enclave claim
       const pf = x => x >= 0.95 ? x.toFixed(1) : x.toFixed(2);
-      body += `<div class="tr"><span style="color:var(--ink-2)">share of residents</span><span class="tv">${pf(s.e / v.p * 100)}% here · ${pf(DATA.totals[s.c] / CITYPOP * 100)}% citywide</span></div>`;
+      body += `<div class="tr" style="margin-bottom:8px"><span style="color:var(--ink-2)">share of residents</span><span class="tv">${pf(s.e / v.p * 100)}% here · ${pf(DATA.totals[s.c] / CITYPOP * 100)}% citywide</span></div>`;
       if (s.ties && s.ties.length) {
         for (const q of s.ties)
           body += `<div class="tr"><span style="color:var(--ink-2)">tied: ${q.c}</span><span class="tv">${fmt(q.e)} · ${lqShow(q)}</span></div>`;
@@ -1410,7 +1410,7 @@ function showTip(ev, id) {
       extras.sort((a, b) => b[2] - a[2]);
       for (const [c, e, lq] of extras.slice(0, 2))
         body += `<div class="tr"><span>${c}</span><span class="tv"><b>${fmt(e)}</b> · ${lqFmt(lq)}</span></div>`;
-      body += '<div class="tr"><span style="color:var(--muted);font-size:11.5px">× = concentration vs the citywide rate</span></div>';
+      body += '<div class="tr" style="margin-top:9px"><span style="color:var(--muted);opacity:.72;font-size:11.5px">× = concentration vs the citywide rate</span></div>';
     } else {
       body += '<div class="tr"><span style="color:var(--muted)">No standout home country here — click for the full profile</span></div>';
     }

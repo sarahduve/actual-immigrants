@@ -116,7 +116,7 @@ select {
 .mapcard { background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; padding: 10px; position: relative; }
 .mapcard svg { display: block; width: 100%; height: auto; position: relative; }
 #dots { position: absolute; display: none; pointer-events: none; }
-.mapcard.mix #dots { display: block; }
+.mapcard.mix #dots { display: block; z-index: 1; }   /* above the svg, so streets don't cover dots */
 .mapcard.mix { --road: var(--grid); }
 .mapcard.mix .nta { fill: #000; fill-opacity: 0; stroke: var(--grid); pointer-events: all; }
 .mapcard.mix .nta.park { fill: var(--park-fill); fill-opacity: 1; pointer-events: none; }

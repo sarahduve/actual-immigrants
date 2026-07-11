@@ -450,6 +450,18 @@ footer a { color: var(--accent); }
     USSR” group is approximate: the census gives no separate line for Estonia, Turkmenistan,
     Kyrgyzstan or Tajikistan.</p>
   </details>
+  <details>
+    <summary>How are the Passport pins graded?</summary>
+    <p>Each official enclave dot is colored by a fixed rule applied to its neighborhood
+    catchment. <b>● Strongly supported:</b> the group runs at least 5× its citywide rate (or
+    makes up over a fifth of all residents), is at least 5% of residents, and the estimate is
+    tight (CV ≤ 10%). <b>✕ Weak or legacy:</b> the group is below 2× its citywide rate there
+    today. <b>◐ Supported, with caveats:</b> everything in between — plus any enclave the census
+    cannot measure directly (there is no “Palestine” or “Tibet” birth-country line, so those are
+    graded on proxies and capped here). The grade describes what the ACS can see about who lives
+    there, not a neighborhood's history or its commercial life — Koreatown can be the center of
+    Korean New York's night out and still house few Korea-born residents.</p>
+  </details>
 </footer>
 </div>
 
@@ -531,14 +543,14 @@ frag.push('</g>');
 frag.push('<g id="hl" style="pointer-events:none"></g>');
 frag.push('<g id="siglabels"></g><g id="domlabels"></g>');
 
-// MOIA "NYC Immigrant Enclaves" list, checked against ACS 2019-2023 (tier 2 = strongly
-// supported, 1 = supported with caveats, 0 = weak or legacy at that location today)
+// MOIA "NYC Immigrant Enclaves" list, checked against ACS 2019-2023. Tiers follow the
+// fixed rubric in the FAQ: 2 = strongly supported, 1 = supported with caveats, 0 = weak/legacy
 const PINS = [
   [40.7596, -73.8303, 2, 'Chinatown in Flushing', '39,361 China-born nearby · 44% of residents', 'Overwhelmingly supported — the city’s largest Chinese concentration.'],
   [40.7180, -74.0000, 2, 'Chinatown in Manhattan', '14,590 China-born · 38% of residents', 'Strongly supported.'],
   [40.6350, -74.0110, 2, 'Chinatown in Sunset Park', '24,957 China-born · 34% of residents', 'Strongly supported — 8th Ave corridor.'],
   [40.6689, -73.9329, 0, 'Guyana Gateway (Crown Hts)', '2,438 Guyana-born · 1.1× citywide', 'Weak — reads broadly Caribbean; the largest Guyana-born concentration is Richmond Hill.'],
-  [40.7496, -73.9877, 0, 'Koreatown in Manhattan', 'only 893 Korea-born residents nearby', 'A commercial district more than a residential one — the largest Korea-born concentrations are in Flushing, Murray Hill and Bayside.'],
+  [40.7496, -73.9877, 1, 'Koreatown in Manhattan', '893 Korea-born · 2.7× citywide', 'More commercial than residential — the largest Korea-born concentrations are in Flushing, Murray Hill and Bayside.'],
   [40.7610, -73.8330, 2, 'Koreatown in Queens', '7,501 Korea-born · 10× citywide', 'Strongly supported (with Murray Hill–Bayside).'],
   [40.6214, -74.0713, 1, 'Little Africa, Staten Island', '487 Liberia-born · 31× citywide', 'Small but hyper-concentrated — Park Hill’s famous Liberian community; noisy estimates.'],
   [40.8336, -73.9186, 1, 'Little Africa, the Bronx', '5,892 West Africa-born · 6% of residents', 'Supported — Ghana strongest; Gambians/Malians hidden in census rollups.'],

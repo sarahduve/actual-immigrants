@@ -88,10 +88,12 @@ h1 { font-size: 26px; font-weight: 700; margin: 0 0 6px; text-wrap: balance; let
 .stat .l { font-size: 12px; color: var(--muted); }
 
 .controls {
-  display: flex; gap: 18px; flex-wrap: wrap; align-items: end;
+  display: flex; gap: 18px 26px; flex-wrap: wrap; align-items: flex-start;
   padding: 14px 16px; margin: 14px 0;
   background: var(--surface); border: 1px solid var(--ring); border-radius: 8px;
 }
+.chklabel + .chklabel { margin-top: 6px; }
+.ctl .chklabel { display: flex; }
 .ctl label { display: block; font-size: 11px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); margin-bottom: 5px; }
 .seg { display: inline-flex; border: 1px solid var(--baseline); border-radius: 6px; overflow: hidden; }
 .seg button {
@@ -131,12 +133,12 @@ svg.z2 .road-l { display: inline; }
 #pins .pin { display: none; cursor: pointer; }
 .mapcard.showpins #pins .pass { display: block; }
 .mapcard.showmiss #pins .miss { display: block; }
-#pins .pin path { stroke: var(--surface); stroke-width: 1.2; }
-#pins .pin .hole { fill: var(--surface); stroke: none; }
-.pin2 path { fill: #0ca30c; }
-.pin1 path { fill: #fab219; }
-.pin0 path { fill: #d03b3b; }
-.pin3 path { fill: var(--ink); }   /* data-spotted — enclaves the Passport list missed */
+circle.pin { stroke: var(--surface); }
+circle.pin2 { fill: #0ca30c; }
+circle.pin1 { fill: #fab219; }
+circle.pin0 { fill: #d03b3b; }
+.pin3 path { fill: var(--ink); stroke: var(--surface); stroke-width: 1.2; }
+.pin3 .hole { fill: var(--surface); stroke: none; }
 #siglabels, #domlabels { display: none; pointer-events: none; }
 .mapcard.sig svg.z2 #siglabels { display: block; }
 .mapcard.dom svg.z2 #domlabels { display: block; }
@@ -319,7 +321,7 @@ footer a { color: var(--accent); }
   <div class="ctl">
     <label>Overlays</label>
     <label class="chklabel"><input type="checkbox" id="pinchk"> NYC Neighborhood Passport Immigrant Enclaves</label>
-    <label class="chklabel" style="margin-left:14px"><input type="checkbox" id="misschk"> Some missing enclaves</label>
+    <label class="chklabel"><input type="checkbox" id="misschk"> Some missing enclaves</label>
   </div>
   <div class="ctl">
     <label>Theme</label>
@@ -534,21 +536,24 @@ const PINS = [
   [40.7270, -73.9900, 0, 'Little Ukraine (East Village)', '244 Ukraine-born · half the citywide rate', 'Cultural landmark, not a residential enclave — Ukrainian NYC is south Brooklyn.'],
   [40.8530, -73.8680, 1, 'Little Yemen (Bronx Park East)', '514 Yemen-born · 7× citywide rate', 'Supported — though Bay Ridge has more Yemen-born residents than the Bronx.'],
   // tier 3 = data-spotted: enclaves the census supports that the Passport list missed
-  [40.6320, -74.0870, 3, 'Little Sri Lanka (Tompkinsville)', '~2,000 Sri Lanka-born across the North Shore', 'The community the Passport map famously left out — every top Sri Lankan neighborhood in the city is on this shore.'],
+  [40.6320, -74.0870, 3, 'Little Sri Lanka (Tompkinsville)', '~2,000 Sri Lanka-born across the North Shore', 'Every top Sri Lankan neighborhood in the city is on this shore.'],
   [40.7410, -73.8800, 3, 'Little Thailand (Elmhurst)', '1,633 Thai-born · 12× the citywide level', 'A quarter of all Thai-born New Yorkers live in Elmhurst alone.'],
   [40.7480, -73.8880, 3, 'Little Indonesia (Elmhurst)', '1,542 Indonesia-born · 14× the citywide level', 'The city’s strongest Indonesian concentration, behind the Whitney Ave food row.'],
   [40.7285, -73.8500, 3, 'Bukharian Broadway (108th St)', '2,943 Uzbekistan-born in Forest Hills, more in Rego Park', 'The center of Bukharian Jewish New York — the census can only see “born in Uzbekistan”.'],
   [40.6050, -73.9560, 3, 'Georgian Gravesend–Homecrest', '1,126 Georgia-born here; thousands more nearby', 'South Brooklyn’s ex-Soviet belt is as Georgian, Uzbek and Kazakh as it is Russian or Ukrainian.'],
-  [40.8630, -73.8560, 3, 'Albanian Allerton–Pelham Gardens', '~1,500 Albania-born across the east Bronx', 'Where Bronx Albanian life actually lives today — the Fordham “Little Albania” era has passed.'],
+  [40.8630, -73.8560, 3, 'Albanian Allerton–Pelham Gardens', '~1,500 Albania-born across the east Bronx', ''],
 ];
-// classic map-marker teardrop, tip anchored at the location; scaled per zoom in applyView
+// Passport enclaves: color-coded dots. Missing enclaves: teardrop markers, tip on the spot.
 const PIN_PATH = 'M0 0C-1.6-6.2-8.5-9-8.5-16.2a8.5 8.5 0 1 1 17 0C8.5-9 1.6-6.2 0 0Z';
 frag.push('<g id="pins">');
 PINS.forEach((p, i) => {
   const x = px(p[1]).toFixed(1), y = py(p[0]).toFixed(1);
-  const kind = p[2] === 3 ? 'miss' : 'pass';
-  frag.push(`<g class="pin ${kind} pin${p[2]}" data-pin="${i}" data-x="${x}" data-y="${y}">
-    <path d="${PIN_PATH}"/><circle class="hole" cx="0" cy="-16.2" r="3.4"/></g>`);
+  if (p[2] === 3) {
+    frag.push(`<g class="pin miss pin3" data-pin="${i}" data-x="${x}" data-y="${y}">
+      <path d="${PIN_PATH}"/><circle class="hole" cx="0" cy="-16.2" r="3.4"/></g>`);
+  } else {
+    frag.push(`<circle class="pin pass pin${p[2]}" data-pin="${i}" cx="${x}" cy="${y}" r="5"/>`);
+  }
 });
 frag.push('</g>');
 svg.innerHTML = frag.join('');
@@ -935,9 +940,12 @@ function applyView() {
     t.setAttribute('font-size', (7 * k).toFixed(2));
     t.style.strokeWidth = (1.6 * k).toFixed(3);   // inline style so the CSS rule can't re-inflate it
   });
-  svg.querySelectorAll('#pins .pin').forEach(g => {
-    const s = (g.classList.contains('miss') ? 1.5 : 1.0) * k;   // missing-enclave pins run larger
-    g.setAttribute('transform', `translate(${g.dataset.x} ${g.dataset.y}) scale(${s.toFixed(3)})`);
+  svg.querySelectorAll('#pins g.pin').forEach(g => {
+    g.setAttribute('transform', `translate(${g.dataset.x} ${g.dataset.y}) scale(${(1.4 * k).toFixed(3)})`);
+  });
+  svg.querySelectorAll('#pins circle.pin').forEach(c => {
+    c.setAttribute('r', (5.5 * k).toFixed(2));
+    c.setAttribute('stroke-width', (1.4 * k).toFixed(2));
   });
   document.getElementById('zin').disabled = view.w <= W / MAXZOOM + 0.01;
   document.getElementById('zout').disabled = view.w >= W - 0.01;
@@ -1139,19 +1147,6 @@ function renderDetail(hoverId) {
       <div class="track"><div class="fill" style="width:${(e / maxEst * 100).toFixed(0)}%;background:${col}"></div></div></div>`;
   }
   html += '</div>';
-  // diversity: effective number of equal-size communities (inverse Simpson over country shares of FB)
-  if (v.f > 0) {
-    let s2 = 0;
-    for (const em of Object.values(v.v)) { const p = em[0] / v.f; s2 += p * p; }
-    if (s2 > 0) {
-      const eff = 1 / s2;
-      const tier = eff < 5 ? 'one group dominates' : eff < 15 ? 'moderately mixed' : 'highly mixed';
-      html += `<div class="kv" style="margin-top:8px"><span class="k">How mixed?</span>
-        <span class="v">${eff.toFixed(0)} · ${tier}</span></div>
-      <div class="flag">immigrants here are as varied as ${eff.toFixed(0)} equal-sized groups would be.
-      NYC neighborhoods range from 2 (Chinatown — one dominant group) to 34 (the most mixed).</div>`;
-    }
-  }
   html += '<div class="hint">● reliable · ◐ use with caution · ○ unreliable (ACS margin of error)</div>';
   el.innerHTML = html;
   const ub = document.getElementById('unpinbtn');
@@ -1350,10 +1345,11 @@ svg.addEventListener('mousemove', ev => {
   const pin = ev.target.closest('#pins .pin');
   if (!pin) return;
   const p = PINS[+pin.dataset.pin];
-  const tierName = ['<b style="color:#d03b3b">✕ weak or legacy</b>', '<b style="color:#b07500">◐ supported, with caveats</b>', '<b style="color:#0ca30c">● strongly supported</b>', '<b>★ data-spotted — not on the Passport list</b>'][p[2]];
-  tip.innerHTML = `<div class="tn">${p[3]}</div><div class="tb">${p[2] === 3 ? 'found by this map' : 'official MOIA enclave'} · ${tierName}</div>
-    <div style="font-size:12.5px"><b>${p[4]}</b></div>
-    <div style="font-size:12px;color:var(--ink-2);margin-top:3px">${p[5]}</div>`;
+  const tierName = ['<b style="color:#d03b3b">✕ weak or legacy</b>', '<b style="color:#b07500">◐ supported, with caveats</b>', '<b style="color:#0ca30c">● strongly supported</b>'][p[2]];
+  tip.innerHTML = `<div class="tn">${p[3]}</div>` +
+    (p[2] === 3 ? '' : `<div class="tb">official MOIA enclave · ${tierName}</div>`) +
+    `<div style="font-size:12.5px"><b>${p[4]}</b></div>` +
+    (p[5] ? `<div style="font-size:12px;color:var(--ink-2);margin-top:3px">${p[5]}</div>` : '');
   tip.style.display = 'block';
   const r = tip.getBoundingClientRect();
   let x = ev.clientX + 14, y = ev.clientY + 14;

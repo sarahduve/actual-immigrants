@@ -29,9 +29,9 @@
     --baseline: #383835;
     --ring: rgba(255,255,255,0.10);
     --accent: #3987e5;
-    --dim-fill: #242422;
-    --other-fill: #56554f;
-    --park-fill: #202020;
+    --dim-fill: #35352f;
+    --other-fill: #605f55;
+    --park-fill: #232321;
     --road: rgba(13,13,13,0.7);
     --c0:#3987e5; --c1:#1baf7a; --c2:#c98500; --c3:#008300;
     --c4:#6a5ae0; --c5:#e66767; --c6:#c74576; --c7:#d95926;
@@ -41,7 +41,7 @@
 :root[data-theme="dark"] {
   --page: #0d0d0d; --surface: #1a1a19; --ink: #ffffff; --ink-2: #c3c2b7;
   --muted: #898781; --grid: #2c2c2a; --baseline: #383835; --ring: rgba(255,255,255,0.10);
-  --accent: #3987e5; --dim-fill: #242422; --other-fill: #56554f; --park-fill: #202020;
+  --accent: #3987e5; --dim-fill: #35352f; --other-fill: #605f55; --park-fill: #232321;
   --road: rgba(13,13,13,0.7);
   --c0:#3987e5; --c1:#1baf7a; --c2:#c98500; --c3:#008300;
   --c4:#6a5ae0; --c5:#e66767; --c6:#c74576; --c7:#d95926;
@@ -250,7 +250,7 @@ svg.focusmode .nta.focused { fill-opacity: 1; }
 #tablesec { display: none; }
 #tablesec.open { display: block; }
 .tscroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--ring); border-radius: 8px; }
-table { border-collapse: collapse; width: 100%; font-size: 13px; min-width: 760px; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
 th, td { text-align: left; padding: 7px 12px; border-bottom: 1px solid var(--grid); white-space: nowrap; }
 td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
 th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.07em; color: var(--muted); cursor: pointer; user-select: none; position: sticky; top: 0; background: var(--surface); }
@@ -269,9 +269,9 @@ footer a { color: var(--accent); }
 <div class="wrap">
 <header>
   <div class="dictbg" aria-hidden="true">
-    <div class="dw">im&#712;migrant<span class="dp">, n.</span></div>
-    <div class="dd">A person that removes into a country for the purpose of permanent residence.</div>
-    <div class="ds">— Webster, An American Dictionary of the English Language, 1828</div>
+    <div class="dw">im&#183;mi&#183;grant<span class="dp"> /&#712;imiɡr&#601;nt/ noun</span></div>
+    <div class="dd">a person who comes to a country to take up permanent residence</div>
+    <div class="ds">— Merriam-Webster</div>
   </div>
   <p class="eyebrow">American Community Survey 2019–2023 · 262 neighborhoods</p>
   <h1>NYC neighborhoods by country of birth</h1>
@@ -280,8 +280,8 @@ footer a { color: var(--accent); }
   which community is most distinctively <i>here</i>, compared to its share of the city as a
   whole — and that's the view that surfaces Little Thailand in Elmhurst or the Bukharian
   corridor in Forest Hills instead of repeating the citywide giants. <b>Mix</b> shows every
-  population as coexisting dots, <b>single origin</b> traces any of 125 birthplaces or 18
-  regions, and <b>immigrant families</b> maps the children of immigrants.</p>
+  population as coexisting dots, and <b>single origin</b> traces any of 125 birthplaces or
+  18 regions.</p>
   <div class="statrow" id="statrow"></div>
 </header>
 
@@ -294,7 +294,6 @@ footer a { color: var(--accent); }
       <button id="mode-mos" style="display:none">Mosaic</button>
       <button id="mode-mix">Mix</button>
       <button id="mode-one">Single origin</button>
-      <button id="mode-fam">Immigrant families</button>
     </span>
   </div>
   <div class="ctl" id="ctl-country" style="display:none">
@@ -339,10 +338,8 @@ footer a { color: var(--accent); }
       <thead><tr>
         <th data-k="n">Neighborhood</th><th data-k="b">Borough</th>
         <th class="num" data-k="p">Population</th><th class="num" data-k="fbpct">Foreign-born</th>
-        <th data-k="d">Largest community</th><th class="num" data-k="de">Born there</th>
-        <th class="num" data-k="dpp">% of residents</th><th class="num" data-k="dpf">% of foreign-born</th>
-        <th data-k="sig">Signature community</th><th class="num" data-k="siglq">×citywide</th>
-        <th data-k="rel">Estimate quality</th>
+        <th data-k="d">Largest community</th>
+        <th data-k="sig">Signature community</th>
       </tr></thead>
       <tbody></tbody>
     </table></div>
@@ -366,10 +363,6 @@ footer a { color: var(--accent); }
   which is what makes a small group like Uzbekistan-born Bukharians light up Forest Hills while
   citywide giants only register where they truly cluster. Signature picks require at least 400 people
   and a usable margin of error.</p>
-  <p><b>Children of immigrants</b> come from ACS table B05009: US-born children under 18 living with at
-  least one foreign-born parent. The census stopped asking adults where their parents were born in
-  1970, so second-generation adults — and any per-country breakdown of children at neighborhood
-  scale — are invisible in this data.</p>
   <p><b>Enclave pins</b> are the 30 neighborhoods on the Mayor's Office of Immigrant Affairs
   “NYC Immigrant Enclaves” list, colored by how well the ACS residential data supports each claim
   (green = strongly, amber = with caveats, red = weak or legacy). Some real communities are
@@ -456,6 +449,8 @@ for (const g of obj.geometries) {
 const ROADS = JSON.parse(document.getElementById('roadsdata').textContent);
 frag.push('<g id="roads" aria-hidden="true">');
 const labelCarriers = [];
+const labelCands = [];   // dedupe before emitting: streets like the BQE come in dozens
+                         // of pieces, and stacking one label per piece makes ink blobs
 let rid = 0;
 for (const [k, cls] of [['l', 'road-l'], ['s', 'road-s'], ['p', 'road-p']])
   for (const [name, line] of ROADS[k]) {
@@ -477,15 +472,25 @@ for (const [k, cls] of [['l', 'road-l'], ['s', 'road-s'], ['p', 'road-p']])
       if (bx < ax) { [ax, bx] = [bx, ax]; [ay, by] = [by, ay]; }   // keep text upright
       const mx = (ax + bx) / 2, my = (ay + by) / 2;
       const ang = Math.atan2(by - ay, bx - ax) * 180 / Math.PI;
-      labelCarriers.push(`<text class="roadlabel" text-anchor="middle" x="${mx.toFixed(1)}" y="${my.toFixed(1)}" dy="-1.5" transform="rotate(${ang.toFixed(1)} ${mx.toFixed(1)} ${my.toFixed(1)})">${name}</text>`);
+      labelCands.push({ name, span, mx, my, ang });
     }
   }
+// one label per street name, unless anchors sit far apart (Broadway earns two)
+{
+  const byName = {};
+  for (const c of labelCands) (byName[c.name] ??= []).push(c);
+  for (const name of Object.keys(byName)) {
+    const placed = [];
+    for (const c of byName[name].sort((a, b) => b.span - a.span)) {
+      if (placed.every(p => Math.hypot(p.mx - c.mx, p.my - c.my) > 150)) {
+        labelCarriers.push(`<text class="roadlabel" text-anchor="middle" x="${c.mx.toFixed(1)}" y="${c.my.toFixed(1)}" dy="-1.5" transform="rotate(${c.ang.toFixed(1)} ${c.mx.toFixed(1)} ${c.my.toFixed(1)})">${c.name}</text>`);
+        placed.push(c);
+      }
+    }
+  }
+}
 frag.push(labelCarriers.join(''));
 frag.push('</g>');
-const BOROS = [['The Bronx', 40.885, -73.765], ['Queens', 40.61, -73.815], ['Brooklyn', 40.563, -74.045],
-  ['Manhattan', 40.81, -74.04], ['Staten Island', 40.535, -74.22]];
-for (const [nm, lat, lon] of BOROS)
-  frag.push(`<text class="borolabel" text-anchor="middle" x="${px(lon).toFixed(0)}" y="${py(lat).toFixed(0)}">${nm}</text>`);
 frag.push('<g id="siglabels"></g><g id="domlabels"></g>');
 
 // MOIA "NYC Immigrant Enclaves" list, checked against ACS 2019-2023 (tier 2 = strongly
@@ -598,8 +603,6 @@ function selTotal() {
 function oneEst(v) { const e = selEntry(v); return e ? e[0] : 0; }
 function oneMoe(v) { const e = selEntry(v); return e ? e[1] : 0; }
 function oneShare(v) { const d = denomOf(v); return d > 0 ? oneEst(v) / d * 100 : 0; }
-function famShare(v) { return v.k && v.k[2] > 0 ? v.k[0] / v.k[2] * 100 : 0; }
-const FAMBINS = [20, 30, 40, 50, 60, 70];
 
 function classify(v, id) {
   if (v.t !== '0') return 'park';
@@ -613,12 +616,6 @@ function classify(v, id) {
     if (!s) return 'dim';
     const g = DATA.cgroup[s.ci];
     return g < 8 ? 'c' + g : 'other';
-  }
-  if (state.mode === 'fam') {
-    if (!v.k || v.k[2] < 200) return 'dim';   // too few children to say
-    const s = famShare(v);
-    let b = 1; for (const t of FAMBINS) if (s >= t) b++;
-    return 'q' + Math.min(b, 7);
   }
   const s = oneShare(v);
   if (oneEst(v) <= 0) return 'q0';
@@ -891,7 +888,6 @@ function applyView() {
   svg.classList.toggle('z3', z3);
   if (z3) ensureStreets();
   const k = view.w / W;
-  svg.querySelectorAll('.borolabel').forEach(t => t.setAttribute('font-size', (12 * k).toFixed(2)));
   svg.querySelectorAll('.roadlabel').forEach(t => t.setAttribute('font-size', (6.5 * k).toFixed(2)));
   svg.querySelectorAll('.siglabel').forEach(t => t.setAttribute('font-size', (7 * k).toFixed(2)));
   svg.querySelectorAll('#pins circle').forEach(c => {
@@ -1011,16 +1007,6 @@ function renderLegend() {
     lg.querySelectorAll('button.chip').forEach(b => b.addEventListener('click', () => {
       state.focus = state.focus === b.dataset.f ? null : b.dataset.f; paint();
     }));
-  } else if (state.mode === 'fam') {
-    title.textContent = 'Children of immigrants';
-    let ramp = '<div class="ramprow">';
-    for (let i = 1; i <= 7; i++) ramp += `<span class="rs" style="background:var(--q${i})"></span>`;
-    ramp += '</div><div class="ramplabels"><span>&lt;20%</span>' + FAMBINS.map(b => `<span>${b}%</span>`).join('') + '</div>';
-    lg.innerHTML = `<div style="font-size:12.5px;color:var(--ink-2)">share of children (under 18, living
-      with parents) who are US-born with at least one foreign-born parent</div>` + ramp +
-      `<div class="hint">Citywide, 47% of children are second generation. The census only links children
-      to their parents' origin while they live at home — adult children of immigrants can't be counted,
-      and no per-country breakdown exists at neighborhood level.</div>`;
   } else if (state.mode === 'mix') {
     title.textContent = 'Every community at once';
     let html = '';
@@ -1073,10 +1059,6 @@ function renderDetail(hoverId) {
     ' · pinned <button class="unpin" id="unpinbtn">✕ unpin</button>' : ''}</div>`;
   html += `<div class="kv"><span class="k">Population</span><span class="v">${fmt(v.p)}</span></div>`;
   html += `<div class="kv"><span class="k">Foreign-born</span><span class="v">${fmt(v.f)} (${(v.p ? v.f / v.p * 100 : 0).toFixed(0)}%)</span></div>`;
-  if (v.k && v.k[2] > 0) {
-    html += `<div class="kv"><span class="k">Children of immigrants</span>
-      <span class="v">${fmt(v.k[0])} (${famShare(v).toFixed(0)}% of kids)</span></div>`;
-  }
   // signature communities: most concentrated here relative to citywide — the enclave signal
   if (v.f > 0) {
     const lqs = [];
@@ -1155,10 +1137,6 @@ function showTip(ev, id) {
     const [sym, lbl] = relInfo(cv(oneEst(v), oneMoe(v)));
     body = `<div class="tr"><span>Born in ${cname}</span><span class="tv"><b>${fmt(oneEst(v))}</b> · ${oneShare(v).toFixed(1)}%</span></div>
       <div class="tr"><span>Estimate</span><span class="tv">±${fmt(oneMoe(v))} ${sym} ${lbl}</span></div>`;
-  } else if (state.mode === 'fam') {
-    body = v.k && v.k[2] > 0
-      ? `<div class="tr"><span>Children of immigrants</span><span class="tv"><b>${fmt(v.k[0])}</b> of ${fmt(v.k[2])} kids · ${famShare(v).toFixed(0)}%</span></div>`
-      : '<div class="tr"><span>Too few children to estimate</span></div>';
   } else {
     if (state.mode === 'sig' && SIG[id]) {
       const s = SIG[id];
@@ -1252,10 +1230,9 @@ function renderTable() {
   tb.innerHTML = tableRows().map(r => {
     const [sym, lbl] = relInfo(r.rel);
     return `<tr><td>${r.n}</td><td>${r.b}</td><td class="num">${fmt(r.p)}</td>
-      <td class="num">${r.fbpct.toFixed(0)}%</td><td>${r.d}</td><td class="num">${fmt(r.de)}</td>
-      <td class="num">${r.dpp.toFixed(1)}%</td><td class="num">${r.dpf.toFixed(1)}%</td>
-      <td>${r.sig}</td><td class="num">${r.siglq ? lqFmt(r.siglq) : '—'}</td>
-      <td>${sym} ${lbl}</td></tr>`;
+      <td class="num">${r.fbpct.toFixed(0)}%</td>
+      <td>${r.d}${r.de ? ` — ${fmt(r.de)} · ${r.dpp.toFixed(1)}% <span class="flag" title="${lbl}">${sym}</span>` : ''}</td>
+      <td>${r.sig}${r.siglq ? ` · ${lqFmt(r.siglq)}` : ''}</td></tr>`;
   }).join('');
 }
 document.querySelectorAll('#datatable th').forEach(th => th.addEventListener('click', () => {
@@ -1276,7 +1253,7 @@ document.getElementById('tabletoggle').addEventListener('click', function () {
 const MODEBTN = {
   dom: document.getElementById('mode-dom'), sig: document.getElementById('mode-sig'),
   mos: document.getElementById('mode-mos'), mix: document.getElementById('mode-mix'),
-  one: document.getElementById('mode-one'), fam: document.getElementById('mode-fam'),
+  one: document.getElementById('mode-one'),
 };
 function setMode(mode) {
   state.mode = mode; state.focus = null;

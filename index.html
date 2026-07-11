@@ -288,7 +288,6 @@ footer a { color: var(--accent); }
 .faq details p { margin: 0 2px 14px; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
 
 .dictmini { display: none; }
-.subviews { display: none; }
 .legdet summary { display: none; }
 @media (max-width: 640px) {
   .legdet summary { display: block; list-style: none; font-size: 12.5px; font-weight: 600;
@@ -320,17 +319,9 @@ footer a { color: var(--accent); }
   .wrap { padding: 16px 12px 40px; }
   h1 { font-size: 21px; }
   .eyebrow { display: none; }   /* the sourcing line lives in the footer on phones */
-  .subprose { display: none; }
-  .subviews { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-  .subviews details[open] { flex: 1 1 100%; }
-  .subviews summary { list-style: none; display: inline-block; font-weight: 600; font-size: 12.5px;
-    padding: 4px 10px; border: 1px solid var(--baseline); border-radius: 14px; cursor: pointer;
-    color: var(--ink-2); background: var(--surface); }
-  .subviews summary::-webkit-details-marker { display: none; }
-  .subviews summary::after { content: " +"; color: var(--muted); }
-  .subviews details[open] summary { background: var(--ink); color: var(--page); border-color: var(--ink); }
-  .subviews details[open] summary::after { content: " −"; color: var(--page); }
-  .subviews p { margin: 6px 2px 4px; font-size: 13px; color: var(--ink-2); }
+  .sub { display: none; }       /* the five views are an FAQ entry on phones */
+  .statrow { display: none; }
+  #ctl-theme { display: none; } /* phones follow the system theme */
   .statrow { gap: 14px 24px; margin-top: 12px; }
   .stat .v { font-size: 19px; }
   .controls { padding: 12px; gap: 12px 20px; margin: 12px 0; }
@@ -374,19 +365,6 @@ footer a { color: var(--accent); }
   neighborhood's list, but unmistakably rooted in one place. <b>Dots</b> draws every immigrant
   population as one dot per 250 people, placed at random within their census tract, and <b>by country</b> traces any
   of 123 birthplaces or 19 regions.</span></p>
-  <div class="subviews">
-    <details><summary>Top birthplace</summary><p>Colors each neighborhood by the country where
-      the most of its foreign-born residents were born.</p></details>
-    <details><summary>Signature</summary><p>Asks a different question — not who is biggest here,
-      but who is unusually concentrated here compared to the rest of the city. That's the view
-      that finds Little Thailand in Elmhurst and the Bukharian corridor in Forest Hills: groups
-      too small to top any neighborhood's list, but unmistakably rooted in one place.</p></details>
-    <details><summary>Mosaic</summary><p>Paints every census tract with the blend of its
-      immigrant residents' world regions — the closest view of block-scale mixing.</p></details>
-    <details><summary>Dots</summary><p>Draws every immigrant population as one dot per 250
-      people, placed at random within their census tract.</p></details>
-    <details><summary>By country</summary><p>Traces any of 123 birthplaces or 19 regions.</p></details>
-  </div>
   <div class="statrow" id="statrow"></div>
 </header>
 
@@ -415,7 +393,7 @@ footer a { color: var(--accent); }
     <label class="chklabel"><input type="checkbox" id="pinchk"> NYC Neighborhood Passport Immigrant Enclaves</label>
     <label class="chklabel"><input type="checkbox" id="misschk"> A few missing enclaves…</label>
   </div>
-  <div class="ctl">
+  <div class="ctl" id="ctl-theme">
     <label>Theme</label>
     <span class="seg" role="group" aria-label="Color theme">
       <button id="th-auto" class="on">Auto</button>
@@ -467,6 +445,17 @@ footer a { color: var(--accent); }
   Tabulation Areas — the same geography behind
   <a href="https://popfactfinder.planning.nyc.gov/">NYC Population FactFinder</a>.</p>
   <div class="faqtitle">About the data</div>
+  <details>
+    <summary>What are the five views?</summary>
+    <p><b>Top birthplace</b> colors each neighborhood by the country where the most of its
+    foreign-born residents were born. <b>Signature</b> asks a different question — not who is
+    biggest here, but who is unusually concentrated here compared to the rest of the city;
+    that's the view that finds Little Thailand in Elmhurst and the Bukharian corridor in Forest
+    Hills. <b>Mosaic</b> paints every census tract with the blend of its immigrant residents'
+    world regions — the closest view of block-scale mixing. <b>Dots</b> draws every immigrant
+    population as one dot per 250 people, placed at random within their census tract.
+    <b>By country</b> traces any of 123 birthplaces or 19 regions.</p>
+  </details>
   <details>
     <summary>What is this counting — and how is it different from an ancestry map?</summary>
     <p>Only people actually born abroad: the immigrants themselves, as they reported their country

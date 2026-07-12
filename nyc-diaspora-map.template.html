@@ -284,6 +284,10 @@ footer a { color: var(--accent); }
 .faq summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
 .faq details p { margin: 0 2px 14px; font-size: 14px; line-height: 1.55; color: var(--ink-2); }
 
+.agestrip { display: flex; gap: 20px; margin: 9px 0 2px; padding: 8px 12px;
+  background: var(--ring); border-radius: 6px; }
+.agestrip b { display: block; font-size: 16px; }
+.agestrip span { font-size: 10.5px; color: var(--muted); }
 .legdet summary { display: none; }
 @media (max-width: 640px) {
   .legdet summary { display: block; list-style: none; font-size: 12.5px; font-weight: 600;
@@ -449,6 +453,15 @@ footer a { color: var(--accent); }
     world regions — the closest view of block-scale mixing. <b>Dots</b> draws every immigrant
     population as one dot per 250 people, placed at random within their census tract.
     <b>By country</b> traces any of 123 birthplaces or 19 regions.</p>
+  </details>
+  <details>
+    <summary>Where do “median age” and “median arrival” come from?</summary>
+    <p>From the census's microdata sample (ACS PUMS 2019–2023) — individual anonymized
+    questionnaires for New York City, weighted — rather than the neighborhood tables behind the
+    map. They're shown only for countries with enough sampled people to be stable, and only
+    citywide: the microdata never places anyone below community-district scale, which is why
+    these figures don't change as you move around the map. They come from a different slice of
+    the same survey than the counts do, so the two won't reconcile to the person.</p>
   </details>
   <details>
     <summary>What is this counting — and how is it different from an ancestry map?</summary>
@@ -1391,6 +1404,12 @@ function renderLegend() {
     let ramp = '<div class="ramprow">';
     for (let i = 1; i <= n; i++) ramp += `<span class="rs" style="background:var(--q${i})"></span>`;
     ramp += '</div><div class="ramplabels"><span>&gt;0</span>' + BINS.map(b => `<span>${fmtPct(b)}</span>`).join('') + '</div>';
+    const AG = (DATA.ages && state.sel[0] === 'c') ? DATA.ages[cname] : null;
+    if (AG) {
+      ramp += `<div class="agestrip"><div><b>${AG[0]}</b><span>median age</span></div>
+        <div><b>${AG[2]}</b><span>median arrival</span></div>
+        <div><b>${AG[1]}%</b><span>are 65+</span></div></div>`;
+    }
     lg.innerHTML = `<div style="font-size:12.5px;color:var(--ink-2)">${denomLbl} · shading breaks adapt to this selection's distribution</div>` + ramp +
       `<div class="hint">${fmt(selTotal())} New Yorkers were born in ${cname}. Neighborhoods with zero estimate are left pale.</div>`;
   }

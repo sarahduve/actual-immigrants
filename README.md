@@ -1,6 +1,6 @@
 # Actual Immigrants
 
-An interactive map of NYC neighborhoods by country of birth.
+An interactive map of NYC neighborhoods by country of birth, inspired by [Mapgate](https://www.nbcnewyork.com/new-york-city/mamdani-to-add-more-neighborhoods-to-nyc-immigrant-enclave-list-after-perceived-snubs/6524448/).
 
 Interactive map of where foreign-born New Yorkers live, built from ACS 2019–2023 place-of-birth
 data. Five views: top birthplace, signature groups (location quotient, with statistical ties
